@@ -9,11 +9,11 @@ from collections import defaultdict
 REGISTRY = "docker://ghcr.io/ublue-os/"
 
 IMAGE_MATRIX_LATEST = {
-    "experience": ["base", "dx"],
+    "experience": ["base"],
     "image_flavor": ["main", "nvidia", "hwe", "hwe-nvidia"],
 }
 IMAGE_MATRIX = {
-    "experience": ["base", "dx"],
+    "experience": ["base"],
     "image_flavor": ["main", "nvidia"],
 }
 
@@ -30,7 +30,6 @@ PATTERN_PKGREL = "{version}"
 COMMON_PAT = "### All Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n"
 OTHER_NAMES = {
     "base": "### Base Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
-    "dx": "### [Dev Experience Images](https://docs.projectbluefin.io/bluefin-dx)\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
     "kde": "### [Aurora Images](https://getaurora.dev/)\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
     "nvidia": "### Nvidia Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
     "hwe": "### HWE Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
@@ -53,12 +52,6 @@ From previous `{target}` version `{prev}` there have been the following changes.
 | **Mesa** | {pkgrel:mesa-filesystem} |
 | **Podman** | {pkgrel:podman} |
 | **Nvidia** | {pkgrel:nvidia-driver} |
-
-### Major DX packages
-| Name | Version |
-| --- | --- |
-| **Incus** | {pkgrel:incus} |
-| **Docker** | {pkgrel:docker-ce} |
 
 {changes}
 
@@ -101,8 +94,6 @@ def get_images(target: str):
 
     for experience, image_flavor in product(*matrix.values()):
         img = "aurora"
-        if experience == "dx":
-            img += "-dx"
 
         if image_flavor != "main":
             img += "-"
@@ -212,8 +203,6 @@ def get_package_groups(target: str, prev: dict[str, Any], manifests: dict[str, A
             if t == "nvidia" and "nvidia" not in image_flavor:
                 continue
             if t == "base" and experience != "base":
-                continue
-            if t == "dx" and experience != "dx":
                 continue
 
             if first:

@@ -73,75 +73,6 @@
 				"wireguard-tools",
 				"wl-clipboard",
 				"zsh"
-			],
-			"dx": [
-				"adobe-source-code-pro-fonts",
-				"android-tools",
-				"bcc",
-				"bpftop",
-				"bpftrace",
-				"cascadia-code-fonts",
-				"cockpit-bridge",
-				"cockpit-machines",
-				"cockpit-networkmanager",
-				"cockpit-ostree",
-				"cockpit-podman",
-				"cockpit-selinux",
-				"cockpit-storaged",
-				"cockpit-system",
-				"code",
-				"containerd.io",
-				"docker-buildx-plugin",
-				"docker-ce",
-				"docker-ce-cli",
-				"docker-compose-plugin",
-				"edk2-ovmf",
-				"flatpak-builder",
-				"genisoimage",
-				"google-droid-sans-mono-fonts",
-				"google-go-mono-fonts",
-				"ibm-plex-mono-fonts",
-				"incus",
-				"incus-agent",
-				"intel-one-mono-fonts",
-				"iotop",
-				"kcli",
-				"libvirt",
-				"libvirt-nss",
-				"lxc",
-				"mozilla-fira-mono-fonts",
-				"nicstat",
-				"numactl",
-				"osbuild-selinux",
-				"p7zip",
-				"podman-bootc",
-				"podman-compose",
-				"podman-machine",
-				"podman-tui",
-				"podmansh",
-				"powerline-fonts",
-				"qemu",
-				"qemu-char-spice",
-				"qemu-device-display-virtio-gpu",
-				"qemu-device-display-virtio-vga",
-				"qemu-device-usb-redirect",
-				"qemu-img",
-				"qemu-system-x86-core",
-				"qemu-user-binfmt",
-				"qemu-user-static",
-				"rocm-hip",
-				"rocm-opencl",
-				"rocm-smi",
-				"sysprof",
-				"tiptop",
-				"trace-cmd",
-				"ublue-os-libvirt-workarounds",
-				"udica",
-				"umoci",
-				"virt-manager",
-				"virt-v2v",
-				"virt-viewer",
-				"ydotool"
 			]
 		},
 		"exclude": {
@@ -158,8 +89,7 @@
 				"plasma-discover-kns",
 				"plasma-welcome-fedora",
 				"podman-docker"
-			],
-			"dx": []
+			]
 		}
 	},
 	"42": {
@@ -167,23 +97,19 @@
 			"all": [
 				"google-noto-fonts-all",
 				"fw-fanctrl"
-      		],
-			"dx": []
+      		]
 		},
 		"exclude": {
-			"all": [],
-			"dx": []
+			"all": []
 		}
 	},
 	"43": {
 		"include": {
 			"all": [
-      		],
-			"dx": []
+      		]
 		},
 		"exclude": {
-			"all": [],
-			"dx": []
+			"all": []
 		}
 	}
 }

@@ -34,7 +34,7 @@ function rebase_helper() {
 
   # Step 1: Choose image variant
   echo "Select your Aurora image:"
-  IMAGE_OPTIONS=(aurora aurora-dx)
+  IMAGE_OPTIONS=(aurora)
   
   # Add current image if it's not already in the list
   if [[ ! " ${IMAGE_OPTIONS[*]} " =~ \ ${IMAGE_NAME}\  ]]; then

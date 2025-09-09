@@ -3,7 +3,6 @@ rechunker_image := "ghcr.io/hhd-dev/rechunk:v1.2.3@sha256:51ffc4c31ac050c02ae35d
 iso_builder_image := "ghcr.io/jasonn3/build-container-installer:v1.3.0@sha256:c5a44ee1b752fd07309341843f8d9f669d0604492ce11b28b966e36d8297ad29"
 images := '(
     [aurora]=aurora
-    [aurora-dx]=aurora-dx
 )'
 flavors := '(
     [main]=main
@@ -122,11 +121,7 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     base_image_name="kinoite"
 
     # Target
-    if [[ "${image}" =~ dx ]]; then
-        target="dx"
-    else
-        target="base"
-    fi
+    target="base"
 
     # AKMODS Flavor and Kernel Version
     if [[ "${flavor}" =~ hwe ]]; then
@@ -527,13 +522,6 @@ build-iso $image="aurora" $tag="latest" $flavor="main" ghcr="0" pipeline="0":
         flatpak_refs+=("$line")
     done < "${FLATPAK_DIR_SHORTNAME}/system-flatpaks.list"
 
-    # Add DX Flatpaks if needed
-    if [[ "${image_name}" =~ dx ]]; then
-        while IFS= read -r line; do
-            flatpak_refs+=("$line")
-        done < "flatpaks/system-flatpaks-dx.list"
-    fi
-
     echo "Flatpak refs: ${flatpak_refs[@]}"
 
     # Generate Install Script for Flatpaks
@@ -910,6 +898,6 @@ retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
         echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
         skopeo="skopeo"
     fi
-    for image in aurora-nvidia-open aurora-nvidia aurora-dx-nvidia aurora-dx-nvidia-open; do
+    for image in aurora-nvidia-open aurora-nvidia; do
       $skopeo copy docker://ghcr.io/ublue-os/${image}:{{ working_tag }} docker://ghcr.io/ublue-os/${image}:{{ stream }}
     done
