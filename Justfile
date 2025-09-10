@@ -6,17 +6,6 @@ images := '(
 )'
 flavors := '(
     [main]=main
-    [nvidia]=nvidia
-    [nvidia-open]=nvidia-open
-    [hwe]=hwe
-    [hwe-nvidia]=hwe-nvidia
-    [hwe-nvidia-open]=hwe-nvidia-open
-    [asus]=asus
-    [asus-nvidia]=asus-nvidia
-    [asus-nvidia-open]=asus-nvidia-open
-    [surface]=surface
-    [surface-nvidia]=surface-nvidia
-    [surface-nvidia-open]=surface-nvidia-open
 )'
 tags := '(
     [stable]=stable
@@ -98,10 +87,6 @@ validate $image $tag $flavor:
         echo "Invalid flavor..."
         exit 1
     fi
-    if [[ ! "$checktag" =~ latest && "$checkflavor" =~ hwe|asus|surface ]]; then
-        echo "HWE images are only built on latest..."
-        exit 1
-    fi
 
 # Build Image
 [group('Image')]
@@ -124,9 +109,7 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     target="base"
 
     # AKMODS Flavor and Kernel Version
-    if [[ "${flavor}" =~ hwe ]]; then
-        akmods_flavor="bazzite"
-    elif [[ "${tag}" =~ stable ]]; then
+    if [[ "${tag}" =~ stable ]]; then
         akmods_flavor="coreos-stable"
     elif [[ "${tag}" =~ beta ]]; then
         akmods_flavor="main"
@@ -154,11 +137,6 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     {{ just }} verify-container "akmods:${akmods_flavor}-${fedora_version}-${kernel_release}"
     if [[ "${akmods_flavor}" =~ coreos ]]; then
         {{ just }} verify-container "akmods-zfs:${akmods_flavor}-${fedora_version}-${kernel_release}"
-    fi
-    if [[ "${flavor}" =~ nvidia-open ]]; then
-        {{ just }} verify-container "akmods-nvidia-open:${akmods_flavor}-${fedora_version}-${kernel_release}"
-    elif [[ "${flavor}" =~ nvidia ]]; then
-        {{ just }} verify-container "akmods-nvidia:${akmods_flavor}-${fedora_version}-${kernel_release}"
     fi
 
     # Get Version
@@ -861,43 +839,5 @@ tag-images image_name="" default_tag="" tags="":
         ${PODMAN} tag $IMAGE {{ image_name }}:${tag}
     done
 
-    # HWE Tagging
-    if [[ "{{ image_name }}" =~ hwe ]]; then
-
-        image_name="{{ image_name }}"
-        asus_name="${image_name/hwe/asus}"
-        surface_name="${image_name/hwe/surface}"
-
-        for tag in {{ tags }}; do
-            ${PODMAN} tag "${IMAGE}" "${asus_name}":${tag}
-            ${PODMAN} tag "${IMAGE}" "${surface_name}":${tag}
-        done
-    fi
-
     # Show Images
     ${PODMAN} images
-
-# # Examples:
-#   > just retag-nvidia-on-ghcr stable-daily stable-daily-41.20250126.3 0
-#   > just retag-nvidia-on-ghcr latest latest-41.20250228.1 0
-#
-# working_tag: The tag of the most recent known good image (e.g., stable-daily-41.20250126.3)
-# stream:      One of latest, stable-daily, stable or gts
-# dry_run:     Only print the skopeo commands instead of running them
-#
-# First generate a PAT with package write access (https://github.com/settings/tokens)
-# and set $GITHUB_USERNAME and $GITHUB_PAT environment variables
-
-# Retag images on GHCR
-[group('Admin')]
-retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
-    #!/bin/bash
-    set -euxo pipefail
-    skopeo="echo === skopeo"
-    if [[ "{{ dry_run }}" -ne 1 ]]; then
-        echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
-        skopeo="skopeo"
-    fi
-    for image in aurora-nvidia-open aurora-nvidia; do
-      $skopeo copy docker://ghcr.io/ublue-os/${image}:{{ working_tag }} docker://ghcr.io/ublue-os/${image}:{{ stream }}
-    done

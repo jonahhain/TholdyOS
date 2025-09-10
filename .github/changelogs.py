@@ -10,11 +10,11 @@ REGISTRY = "docker://ghcr.io/ublue-os/"
 
 IMAGE_MATRIX_LATEST = {
     "experience": ["base"],
-    "image_flavor": ["main", "nvidia", "hwe", "hwe-nvidia"],
+    "image_flavor": ["main"],
 }
 IMAGE_MATRIX = {
     "experience": ["base"],
-    "image_flavor": ["main", "nvidia"],
+    "image_flavor": ["main"],
 }
 
 RETRIES = 3
@@ -31,8 +31,6 @@ COMMON_PAT = "### All Images\n| | Name | Previous | New |\n| --- | --- | --- | -
 OTHER_NAMES = {
     "base": "### Base Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
     "kde": "### [Aurora Images](https://getaurora.dev/)\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
-    "nvidia": "### Nvidia Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
-    "hwe": "### HWE Images\n| | Name | Previous | New |\n| --- | --- | --- | --- |{changes}\n\n",
 }
 
 COMMITS_FORMAT = "### Commits\n| Hash | Subject |\n| --- | --- |{commits}\n\n"
@@ -51,7 +49,6 @@ From previous `{target}` version `{prev}` there have been the following changes.
 | **KDE** | {pkgrel:plasma-desktop} |
 | **Mesa** | {pkgrel:mesa-filesystem} |
 | **Podman** | {pkgrel:podman} |
-| **Nvidia** | {pkgrel:nvidia-driver} |
 
 {changes}
 
@@ -198,10 +195,6 @@ def get_package_groups(target: str, prev: dict[str, Any], manifests: dict[str, A
             if img not in pkg:
                 continue
 
-            if t == "hwe" and "hwe" not in image_flavor:
-                continue
-            if t == "nvidia" and "nvidia" not in image_flavor:
-                continue
             if t == "base" and experience != "base":
                 continue
 

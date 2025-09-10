@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [amd64]
-        flavor: ["main", "nvidia-open"]
+        flavor: ["main"]
         image_version: ["stable"]
         include:
           - platform: amd64
