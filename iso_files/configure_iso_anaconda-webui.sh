@@ -111,7 +111,18 @@ EOF
 # Signed Images
 tee /usr/share/anaconda/post-scripts/install-configure-upgrade.ks <<EOF
 %post --erroronfail
+
+# Temporary workaround for ostree-booted check
+if [ ! -f /run/ostree-booted ]; then
+    touch /run/ostree-booted
+    CLEANUP_OSTREE_BOOTED=1
+fi
+
 bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry $IMAGE_REF:$IMAGE_TAG
+
+if [ -n "\$CLEANUP_OSTREE_BOOTED" ]; then
+    rm -f /run/ostree-booted
+fi
 %end
 EOF
 
