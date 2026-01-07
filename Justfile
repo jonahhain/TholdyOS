@@ -4,16 +4,12 @@ common_image := "ghcr.io/get-aurora-dev/common:latest"
 brew_image := "ghcr.io/ublue-os/brew:latest"
 images := '(
     [aurora]=aurora
-    [aurora-dx]=aurora-dx
 )'
 flavors := '(
     [main]=main
-    [nvidia-open]=nvidia-open
 )'
 tags := '(
     [stable]=stable
-    [latest]=latest
-    [beta]=beta
 )'
 export SUDO_DISPLAY := if `if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then echo true; fi` == "true" { "true" } else { "false" }
 export SUDOIF := if `id -u` == "0" { "" } else if SUDO_DISPLAY == "true" { "sudo --askpass" } else { "sudo" }
@@ -111,14 +107,8 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     # Base Image
     base_image_name="kinoite"
 
-    # AKMODS Flavor and Kernel Version
-    if [[ "${tag}" =~ stable ]]; then
-        akmods_flavor="coreos-stable"
-    elif [[ "${tag}" =~ beta ]]; then
-        akmods_flavor="main"
-    else
-        akmods_flavor="main"
-    fi
+    # AKMODS Flavor (stable uses coreos-stable)
+    akmods_flavor="coreos-stable"
 
     # Fedora Version
     if [[ {{ ghcr }} == "0" ]]; then
@@ -138,12 +128,6 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
 
     # Verify Containers with Cosign
     {{ just }} verify-container "akmods:${akmods_flavor}-${fedora_version}-${kernel_release}"
-    if [[ "${akmods_flavor}" =~ coreos ]]; then
-        {{ just }} verify-container "akmods-zfs:${akmods_flavor}-${fedora_version}-${kernel_release}"
-    fi
-    if [[ "${flavor}" =~ nvidia-open ]]; then
-        {{ just }} verify-container "akmods-nvidia-open:${akmods_flavor}-${fedora_version}-${kernel_release}"
-    fi
 
     {{ just }} verify-container "common:latest@${common_image_sha}" ghcr.io/get-aurora-dev https://raw.githubusercontent.com/get-aurora-dev/common/refs/heads/main/cosign.pub
 
@@ -169,11 +153,6 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
 
     # Build Arguments
     BUILD_ARGS=()
-    # Target
-    if [[ "${image}" =~ dx ]]; then
-           BUILD_ARGS+=("--build-arg" "IMAGE_FLAVOR=dx")
-           target="dx"
-    fi
     BUILD_ARGS+=("--build-arg" "AKMODS_FLAVOR=${akmods_flavor}")
     BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${base_image_name}")
     BUILD_ARGS+=("--build-arg" "COMMON_IMAGE={{ common_image }}")
@@ -682,28 +661,3 @@ tag-images image_name="" default_tag="" tags="":
 
     # Show Images
     ${PODMAN} images
-
-# # Examples:
-#   > just retag-nvidia-on-ghcr stable-daily stable-daily-41.20250126.3 0
-#   > just retag-nvidia-on-ghcr latest latest-41.20250228.1 0
-#
-# working_tag: The tag of the most recent known good image (e.g., stable-daily-41.20250126.3)
-# stream:      One of latest, stable-daily, stable or gts
-# dry_run:     Only print the skopeo commands instead of running them
-#
-# First generate a PAT with package write access (https://github.com/settings/tokens)
-# and set $GITHUB_USERNAME and $GITHUB_PAT environment variables
-
-# Retag images on GHCR
-[group('Admin')]
-retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
-    #!/bin/bash
-    set -euxo pipefail
-    skopeo="echo === skopeo"
-    if [[ "{{ dry_run }}" -ne 1 ]]; then
-        echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
-        skopeo="skopeo"
-    fi
-    for image in aurora-nvidia-open aurora-dx-nvidia-open; do
-      $skopeo copy docker://ghcr.io/ublue-os/${image}:{{ working_tag }} docker://ghcr.io/ublue-os/${image}:{{ stream }}
-    done
