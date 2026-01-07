@@ -102,34 +102,6 @@ jobs:
                                "${MATRIX_IMAGE_FLAVOR}" \
                                "${INPUTS_KERNEL_PIN}"
 
-      - name: Setup Syft
-        id: setup-syft
-        if: github.event_name != 'pull_request'
-        uses: anchore/sbom-action/download-syft@a930d0ac434e3182448fe678398ba5713717112a # v0
-        with:
-          syft-version: v1.39.0
-
-      - name: Generate SBOM
-        if: github.event_name != 'pull_request'
-        id: generate-sbom
-        env:
-          IMAGE: ${{ env.IMAGE_NAME }}
-          STREAM_NAME: ${{ matrix.stream_name }}
-          SYFT_CMD: ${{ steps.setup-syft.outputs.cmd }}
-          OCI_DIR: "/tmp/image-oci-dir"
-        run: |
-          mkdir -p ${OCI_DIR}/rootfs
-          sudo podman container create --replace --name aurora-tmp "localhost/${IMAGE}:${STREAM_NAME}"
-          sudo podman export aurora-tmp | sudo tar -C ${OCI_DIR}/rootfs -xf -
-          sudo podman container rm aurora-tmp
-
-          OUTPUT_PATH="$(mktemp -d)/sbom.json"
-          export SYFT_PARALLELISM=$(($(nproc)*2))
-          sudo $SYFT_CMD --source-name "${IMAGE}"-"${STREAM_NAME}" ${OCI_DIR} -o syft-json=${OUTPUT_PATH}
-          du -sh ${OUTPUT_PATH}
-          echo "OUTPUT_PATH=${OUTPUT_PATH}" >> $GITHUB_OUTPUT
-          sudo rm -rf ${OCI_DIR}
-
       - name: Rechunk Image
         id: rechunk-image
         shell: bash
@@ -259,21 +231,6 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
           LOWERCASE: ${{ steps.registry_case.outputs.lowercase }}
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
-
-      - name: Add SBOM Attestation
-        if: github.event_name != 'pull_request'
-        env:
-          IMAGE: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
-          DIGEST: ${{ steps.push.outputs.outputs && fromJSON(steps.push.outputs.outputs).digest }}
-          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
-          SBOM_OUTPUT: ${{ steps.generate-sbom.outputs.OUTPUT_PATH }}
-        run: |
-          cd "$(dirname "$SBOM_OUTPUT")"
-          cosign attest -y \
-            --predicate ./sbom.json \
-            --type spdxjson \
-            --key env://COSIGN_PRIVATE_KEY \
-            "${IMAGE}@${DIGEST}"
 
   check:
     name: Check all ${{ matrix.stream_name }} builds successful

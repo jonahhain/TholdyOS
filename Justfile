@@ -51,8 +51,6 @@ clean:
     touch _build
     find *_build* -exec rm -rf {} \;
     rm -f previous.manifest.json
-    rm -f changelog.md
-    rm -f output.env
 
 # Check if valid combo
 [group('Utility')]
@@ -89,7 +87,7 @@ validate $image $tag $flavor:
 
 # Build Image
 [group('Image')]
-build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
+build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
     #!/usr/bin/bash
 
     echo "::group:: Build Prep"
@@ -220,12 +218,12 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
 
 # Build Image and Rechunk
 [group('Image')]
-build-rechunk image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-rechunk image="aurora" tag="stable" flavor="main" kernel_pin="":
     @{{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 0 0 {{ kernel_pin }}
 
 # Build Image with GHCR Flag
 [group('Image')]
-build-ghcr image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-ghcr image="aurora" tag="stable" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     if [[ "${UID}" -gt "0" ]]; then
         echo "Must Run with sudo or as root..."
@@ -235,14 +233,14 @@ build-ghcr image="aurora" tag="latest" flavor="main" kernel_pin="":
 
 # Build Image for Pipeline:
 [group('Image')]
-build-pipeline image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-pipeline image="aurora" tag="stable" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     ${SUDOIF} {{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 1 1 {{ kernel_pin }}
 
 # Rechunk Image
 [group('Image')]
 [private]
-rechunk $image="aurora" $tag="latest" $flavor="main" ghcr="0" pipeline="0":
+rechunk $image="aurora" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
     #!/usr/bin/bash
 
     echo "::group:: Rechunk Prep"
@@ -398,7 +396,7 @@ rechunk $image="aurora" $tag="latest" $flavor="main" ghcr="0" pipeline="0":
 
 # Load OCI into Podman Store
 [group('Image')]
-load-rechunk image="aurora" tag="latest" flavor="main":
+load-rechunk image="aurora" tag="stable" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -419,7 +417,7 @@ load-rechunk image="aurora" tag="latest" flavor="main":
 
 # Run Container
 [group('Image')]
-run $image="aurora" $tag="latest" $flavor="main":
+run $image="aurora" $tag="stable" $flavor="main":
     #!/usr/bin/bash
     set -eoux pipefail
 
@@ -437,13 +435,6 @@ run $image="aurora" $tag="latest" $flavor="main":
 
     # Run Container
     ${PODMAN} run -it --rm localhost/"${image_name}":"${tag}" bash
-
-# Test Changelogs
-[group('Changelogs')]
-changelogs branch="stable" handwritten="":
-    #!/usr/bin/bash
-    set -eou pipefail
-    python3 ./.github/changelogs.py "{{ branch }}" ./output.env ./changelog.md --workdir . --handwritten "{{ handwritten }}"
 
 # Verify Container with Cosign
 [group('Utility')]
@@ -480,7 +471,7 @@ verify-container container="" registry="ghcr.io/ublue-os" key="":
 
 # Secureboot Check
 [group('Utility')]
-secureboot $image="aurora" $tag="latest" $flavor="main":
+secureboot $image="aurora" $tag="stable" $flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -532,19 +523,13 @@ secureboot $image="aurora" $tag="latest" $flavor="main":
 # Get Fedora Version of an image
 [group('Utility')]
 [private]
-fedora_version image="aurora" tag="latest" flavor="main" $kernel_pin="":
+fedora_version image="aurora" tag="stable" flavor="main" $kernel_pin="":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
     if [[ ! -f /tmp/manifest.json ]]; then
-        if [[ "{{ tag }}" =~ stable ]]; then
-            # CoreOS does not uses cosign
-            skopeo inspect --retry-times 3 docker://quay.io/fedora/fedora-coreos:stable > /tmp/manifest.json
-        elif [[ "{{ tag }}" =~ beta ]]; then
-            skopeo inspect --retry-times 3 docker://ghcr.io/ublue-os/base-main:beta > /tmp/manifest.json
-        else
-            skopeo inspect --retry-times 3 docker://ghcr.io/ublue-os/base-main:"{{ tag }}" > /tmp/manifest.json
-        fi
+        # CoreOS does not uses cosign
+        skopeo inspect --retry-times 3 docker://quay.io/fedora/fedora-coreos:stable > /tmp/manifest.json
     fi
     fedora_version=$(jq -r '.Labels["org.opencontainers.image.version"]' < /tmp/manifest.json | grep -oP '^[0-9]+')
     if [[ -n "${kernel_pin:-}" ]]; then
@@ -555,7 +540,7 @@ fedora_version image="aurora" tag="latest" flavor="main" $kernel_pin="":
 # Image Name
 [group('Utility')]
 [private]
-image_name image="aurora" tag="latest" flavor="main":
+image_name image="aurora" tag="stable" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
@@ -568,7 +553,7 @@ image_name image="aurora" tag="latest" flavor="main":
 
 # Generate Tags
 [group('Utility')]
-generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
+generate-build-tags image="aurora" tag="stable" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -613,8 +598,6 @@ generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr
         BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
     elif [[ "{{ tag }}" =~ "stable" && "{{ ghcr }}" == "0" ]]; then
         BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
-    elif [[ ! "{{ tag }}" =~ stable|beta ]]; then
-        BUILD_TAGS+=("${FEDORA_VERSION}" "${FEDORA_VERSION}-${version}" "${FEDORA_VERSION}-${version:3}")
     fi
 
     if [[ "${github_event}" == "pull_request" ]]; then
@@ -627,7 +610,7 @@ generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr
 
 # Generate Default Tag
 [group('Utility')]
-generate-default-tag tag="latest" ghcr="0":
+generate-default-tag tag="stable" ghcr="0":
     #!/usr/bin/bash
     set -eou pipefail
 
