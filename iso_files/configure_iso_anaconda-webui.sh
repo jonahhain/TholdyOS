@@ -164,12 +164,6 @@ if [[ ! -f "$SECUREBOOT_KEY" ]]; then
     exit 0
 fi
 
-SYS_ID="$(cat /sys/devices/virtual/dmi/id/product_name)"
-if [[ ":Jupiter:Galileo:" =~ ":$SYS_ID:" ]]; then
-    echo "Steam Deck hardware detected. Skipping key enrollment."
-    exit 0
-fi
-
 mokutil --timeout -1 || :
 echo -e "$ENROLLMENT_PASSWORD\n$ENROLLMENT_PASSWORD" | mokutil --import "$SECUREBOOT_KEY" || :
 %end
