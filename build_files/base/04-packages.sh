@@ -97,7 +97,6 @@ copr_install_isolated "ublue-os/staging" \
 
 # From ublue-os/packages
 copr_install_isolated "ublue-os/packages" \
-    "krunner-bazaar" \
     "kcm_ublue" \
     "uupd"
 

@@ -33,10 +33,6 @@ xmllint --noout \
   /usr/share/backgrounds/default.xml \
   /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
-# If this file is not on the image bazaar will automatically be removed from users systems :(
-# See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
-test -f /usr/share/flatpak/preinstall.d/bazaar.preinstall
-
 # Make sure this garbage never makes it to an image
 test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
@@ -82,7 +78,6 @@ IMPORTANT_PACKAGES=(
     distrobox
     fish
     flatpak
-    krunner-bazaar
     kwin
     pipewire
     plasma-desktop

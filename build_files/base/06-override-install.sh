@@ -56,9 +56,6 @@ done
 # These notifications are useless and confusing
 rm /etc/xdg/autostart/org.kde.discover.notifier.desktop
 
-# Use Bazaar for Flatpak refs
-echo "application/vnd.flatpak.ref=io.github.kolunmi.Bazaar.desktop" >> /usr/share/applications/mimeapps.list
-
 # Ptyxis Terminal
 sed -i 's@\[Desktop Action new-window\]@\[Desktop Action new-window\]\nX-KDE-Shortcuts=Ctrl+Alt+T@g' /usr/share/applications/org.gnome.Ptyxis.desktop
 sed -i 's@Exec=ptyxis@Exec=kde-ptyxis@g' /usr/share/applications/org.gnome.Ptyxis.desktop
