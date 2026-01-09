@@ -9,7 +9,6 @@ set -eoux pipefail
 
 # Setup Systemd
 systemctl enable rpm-ostree-countme.service
-systemctl enable tailscaled.service
 systemctl enable dconf-update.service
 systemctl enable aurora-groups.service
 systemctl enable usr-share-sddm-themes.mount
@@ -23,9 +22,6 @@ systemctl enable flatpak-nuke-fedora.service
 
 # run flatpak preinstall once at startup
 systemctl enable flatpak-preinstall.service
-
-# disable sunshine service
-systemctl --global disable sunshine.service
 
 # Updater
 systemctl enable uupd.timer
@@ -48,7 +44,7 @@ systemctl disable flatpak-add-fedora-repos.service
 # We only need to clean up repos that were enabled during the build process.
 
 # Disable third-party repos
-for repo in negativo17-fedora-multimedia tailscale fedora-cisco-openh264; do
+for repo in negativo17-fedora-multimedia fedora-cisco-openh264; do
     if [[ -f "/etc/yum.repos.d/${repo}.repo" ]]; then
         sed -i 's@enabled=1@enabled=0@g' "/etc/yum.repos.d/${repo}.repo"
     fi

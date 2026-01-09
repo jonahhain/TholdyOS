@@ -15,7 +15,6 @@ dnf remove -y ublue-motd || true
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
 systemctl disable rpm-ostree-countme.service
-systemctl disable tailscaled.service
 systemctl disable bootloader-update.service
 systemctl disable rpm-ostreed-automatic.timer
 systemctl disable uupd.timer

@@ -83,9 +83,7 @@ IMPORTANT_PACKAGES=(
     podman
     ptyxis
     sddm
-    Sunshine
     systemd
-    tailscale
     uupd
     wireplumber
     zsh
@@ -127,7 +125,6 @@ fi
 
 IMPORTANT_UNITS=(
     rpm-ostree-countme.timer
-    tailscaled.service
     ublue-system-setup.service
     uupd.timer
   )
