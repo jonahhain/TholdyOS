@@ -10,16 +10,13 @@ sbkey='https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
 
 # Configure Live Environment
 ## Remove packages from liveCD to save space
-dnf remove -y ublue-brew ublue-motd || true
+dnf remove -y ublue-motd || true
 
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
 systemctl disable rpm-ostree-countme.service
 systemctl disable tailscaled.service
 systemctl disable bootloader-update.service
-systemctl disable brew-upgrade.timer
-systemctl disable brew-update.timer
-systemctl disable brew-setup.service
 systemctl disable rpm-ostreed-automatic.timer
 systemctl disable uupd.timer
 systemctl disable ublue-system-setup.service
