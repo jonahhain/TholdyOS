@@ -1,18 +1,15 @@
 name: Stable Images
 on:
   merge_group: # Make Stable-Daily run on merge groups
-  pull_request:
+  push:
     branches:
       - main
-      - testing
     paths-ignore:
       - "**.md"
       - "iso_files/**"
       - "flatpaks/**"
       - ".github/workflows/*iso*"
       - "just/*.just"
-  schedule:
-    - cron: "15 1 * * TUE" # Every Tuesday at 1:15 AM
   workflow_call:
   workflow_dispatch:
 
