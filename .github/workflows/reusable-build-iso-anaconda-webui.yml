@@ -1,14 +1,16 @@
 ---
-name: Build ISOs (Live with Webui)
+name: Build ISOs
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     paths:
       - ".github/workflows/reusable-build-iso-anaconda-webui.yml"
       - "iso_files/configure_iso_anaconda-webui.sh"
-  schedule:
-    - cron: "0 2 1 * *" # First day of each month at 2:00 AM UTC
+  workflow_run:
+    workflows: ["Stable Images"]
+    types:
+      - completed
 
 env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
@@ -21,6 +23,7 @@ concurrency:
 jobs:
   build:
     name: Build ISOs
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.platform == 'amd64' && 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -69,8 +72,9 @@ jobs:
           image_name=$(just image_name "aurora" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
           image_ref="${IMAGE_REGISTRY}/${image_name}"
           KARGS="NONE"
+          BUILD_DATE=$(date +%Y%m%d)
           echo "image_ref=$image_ref" >> "${GITHUB_OUTPUT}"
-          echo "artifact_format="$image_name-${{ matrix.image_version }}-webui-$(uname -m)"" >> "${GITHUB_OUTPUT}"
+          echo "artifact_format=${image_name}-${{ matrix.image_version }}-${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
           echo "kargs=$KARGS" >> "${GITHUB_OUTPUT}"
 
       - name: Build ISO

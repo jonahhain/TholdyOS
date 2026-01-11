@@ -61,11 +61,6 @@ validate $image $tag $flavor:
     declare -A tags={{ tags }}
     declare -A flavors={{ flavors }}
 
-    # Handle Stable Daily
-    if [[ "${tag}" == "stable-daily" ]]; then
-        tag="stable"
-    fi
-
     checkimage="${images[${image}]-}"
     checktag="${tags[${tag}]-}"
     checkflavor="${flavors[${flavor}]-}"
@@ -300,9 +295,6 @@ rechunk $image="aurora" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
     # Cleanup Space during Github Action
     if [[ "{{ ghcr }}" == "1" ]]; then
         base_image_name=kinoite-main
-        if [[ "${tag}" =~ stable ]]; then
-            tag="stable-daily"
-        fi
         ID=$(${SUDOIF} ${PODMAN} images --filter reference=ghcr.io/{{ repo_organization }}/"${base_image_name}":${fedora_version} --format "{{ '{{.ID}}' }}")
         if [[ -n "$ID" ]]; then
             ${PODMAN} rmi "$ID"
@@ -581,19 +573,9 @@ generate-build-tags image="aurora" tag="stable" flavor="main" kernel_pin="" ghcr
 
     # Convenience Tags
     if [[ "{{ tag }}" =~ stable ]]; then
-        BUILD_TAGS+=("stable-daily" "${version}" "stable-daily-${version}" "stable-daily-${version:3}")
+        BUILD_TAGS+=("stable" "${version}" "stable-${version}" "stable-${version:3}")
     else
         BUILD_TAGS+=("{{ tag }}" "{{ tag }}-${version}" "{{ tag }}-${version:3}")
-    fi
-
-    # Weekly Stable / Rebuild Stable on workflow_dispatch
-    github_event="{{ github_event }}"
-    if [[ "{{ tag }}" =~ "stable" && "${WEEKLY}" == "${TODAY}" && "${github_event}" =~ schedule ]]; then
-        BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
-    elif [[ "{{ tag }}" =~ "stable" && "${github_event}" =~ workflow_dispatch|workflow_call ]]; then
-        BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
-    elif [[ "{{ tag }}" =~ "stable" && "{{ ghcr }}" == "0" ]]; then
-        BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
     fi
 
     if [[ "${github_event}" == "pull_request" ]]; then
@@ -611,9 +593,7 @@ generate-default-tag tag="stable" ghcr="0":
     set -eou pipefail
 
     # Default Tag
-    if [[ "{{ tag }}" =~ stable && "{{ ghcr }}" == "1" ]]; then
-        DEFAULT_TAG="stable-daily"
-    elif [[ "{{ tag }}" =~ stable && "{{ ghcr }}" == "0" ]]; then
+    if [[ "{{ tag }}" =~ stable ]]; then
         DEFAULT_TAG="stable"
     else
         DEFAULT_TAG="{{ tag }}"
