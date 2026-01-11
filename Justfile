@@ -578,6 +578,7 @@ generate-build-tags image="aurora" tag="stable" flavor="main" kernel_pin="" ghcr
         BUILD_TAGS+=("{{ tag }}" "{{ tag }}-${version}" "{{ tag }}-${version:3}")
     fi
 
+    github_event="{{ github_event }}"
     if [[ "${github_event}" == "pull_request" ]]; then
         alias_tags=("${COMMIT_TAGS[@]}")
     else
