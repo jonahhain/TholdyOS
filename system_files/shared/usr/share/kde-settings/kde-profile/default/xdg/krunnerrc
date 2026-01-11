@@ -1,0 +1,5 @@
+[General]
+FreeFloating=true
+[Plugins]
+# Disable Discover
+krunner_appstreamEnabled=false

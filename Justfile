@@ -1,6 +1,5 @@
 repo_organization := "jonahhain"
 rechunker_image := "ghcr.io/ublue-os/legacy-rechunk:v1.0.1-x86_64@sha256:2627cbf92ca60ab7372070dcf93b40f457926f301509ffba47a04d6a9e1ddaf7"
-common_image := "ghcr.io/get-aurora-dev/common:latest"
 images := '(
     [aurora]=aurora
 )'
@@ -93,8 +92,6 @@ build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline
     # Image Name
     image_name=$({{ just }} image_name {{ image }} {{ tag }} {{ flavor }})
 
-    common_image_sha=$(yq -r '.images[] | select(.name == "common") | .digest' image-versions.yml)
-
     # Base Image
     base_image_name="kinoite"
 
@@ -120,8 +117,6 @@ build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline
     # Verify Containers with Cosign
     {{ just }} verify-container "akmods:${akmods_flavor}-${fedora_version}-${kernel_release}"
 
-    {{ just }} verify-container "common:latest@${common_image_sha}" ghcr.io/get-aurora-dev https://raw.githubusercontent.com/get-aurora-dev/common/refs/heads/main/cosign.pub
-
     # Get Version
     if [[ "${tag}" =~ stable ]]; then
         ver="${fedora_version}.$(date +%Y%m%d)"
@@ -146,8 +141,6 @@ build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline
     BUILD_ARGS=()
     BUILD_ARGS+=("--build-arg" "AKMODS_FLAVOR=${akmods_flavor}")
     BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${base_image_name}")
-    BUILD_ARGS+=("--build-arg" "COMMON_IMAGE={{ common_image }}")
-    BUILD_ARGS+=("--build-arg" "COMMON_IMAGE_SHA=${common_image_sha}")
     BUILD_ARGS+=("--build-arg" "FEDORA_MAJOR_VERSION=${fedora_version}")
     BUILD_ARGS+=("--build-arg" "IMAGE_NAME=${image_name}")
     BUILD_ARGS+=("--build-arg" "IMAGE_VENDOR={{ repo_organization }}")
