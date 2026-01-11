@@ -152,13 +152,6 @@ rpm --erase --nodeps plasma-lookandfeel-fedora
 # rpm erase doesn't remove actual files
 rm -rf /usr/share/plasma/look-and-feel/org.fedoraproject.fedora.desktop/
 
-
-# https://github.com/ublue-os/bazzite/issues/1400
-# TODO: test if we still need this when upgrading firmware with fwupd
-dnf5 -y swap \
-  --repo=copr:copr.fedorainfracloud.org:ublue-os:staging \
-  fwupd fwupd
-
 # TODO: remove me on next flatpak release when preinstall landed in Fedora
 dnf5 -y copr enable ublue-os/flatpak-test
 dnf5 -y copr disable ublue-os/flatpak-test
