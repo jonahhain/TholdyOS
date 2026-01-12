@@ -7,11 +7,6 @@ set -eoux pipefail
 # Documentation is available online
 rm -rf /usr/share/doc
 
-# Offline Aurora documentation
-ghcurl "https://github.com/ublue-os/aurora-docs/releases/download/0.1/aurora.pdf" --retry 3 -o /tmp/aurora.pdf
-install -Dm0644 -t /usr/share/doc/aurora/ /tmp/aurora.pdf
-cp /usr/share/applications/dev.getaurora.aurora-docs.desktop /usr/share/kglobalaccel/
-
 # Starship Shell Prompt
 ghcurl "https://github.com/starship/starship/releases/latest/download/starship-$(uname -m)-unknown-linux-gnu.tar.gz" --retry 3 -o /tmp/starship.tar.gz
 ghcurl "https://github.com/starship/starship/releases/latest/download/starship-$(uname -m)-unknown-linux-gnu.tar.gz.sha256" --retry 3 -o /tmp/starship.tar.gz.sha256
@@ -65,15 +60,6 @@ desktop-file-edit --set-key=Exec --set-value='env GTK_IM_MODULE=ibus kde-ptyxis'
 cp /usr/share/applications/org.gnome.Ptyxis.desktop /usr/share/kglobalaccel/
 
 rm -f /etc/profile.d/gnome-ssh-askpass.{csh,sh} # This shouldn't be pulled in
-
-# Test aurora gschema override for errors. If there are no errors, proceed with compiling aurora gschema, which includes setting overrides.
-mkdir -p /tmp/aurora-schema-test
-find /usr/share/glib-2.0/schemas/ -type f ! -name "*.gschema.override" -exec cp {} /tmp/aurora-schema-test/ \;
-cp /usr/share/glib-2.0/schemas/zz0-aurora-modifications.gschema.override /tmp/aurora-schema-test/
-echo "Running error test for aurora gschema override. Aborting if failed."
-glib-compile-schemas --strict /tmp/aurora-schema-test
-echo "Compiling gschema to include aurora setting overrides"
-glib-compile-schemas /usr/share/glib-2.0/schemas &>/dev/null
 
 # Make Samba usershares work OOTB
 mkdir -p /var/lib/samba/usershares
