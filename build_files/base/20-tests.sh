@@ -40,12 +40,7 @@ test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 flatpak preinstall --help
 
 desktop-file-validate \
-  /usr/share/applications/Discourse.desktop \
   /usr/share/applications/boot-to-windows.desktop \
-  /usr/share/applications/dev.getaurora.aurora-docs.desktop \
-  /usr/share/applications/documentation.desktop \
-  /usr/share/applications/org.gnome.Ptyxis.desktop \
-  /usr/share/applications/system-update.desktop
 
 # Check for KDE Plasma version mismatch
 # Fedora Repos have gotten the newer one, trying to upgrade
@@ -79,7 +74,6 @@ IMPORTANT_PACKAGES=(
     pipewire
     plasma-desktop
     podman
-    ptyxis
     sddm
     systemd
     uupd

@@ -48,7 +48,7 @@ FEDORA_PACKAGES=(
     plasma-wallpapers-dynamic
     powerstat
     powertop
-    ptyxis
+    konsole
     rclone
     restic
     samba-winbind
