@@ -25,8 +25,6 @@ FEDORA_PACKAGES=(
     borgbackup
     davfs2
     evtest
-    fastfetch
-    fish
     foo2zjs
     freeipa-client
     git-credential-libsecret
@@ -120,6 +118,8 @@ EXCLUDED_PACKAGES=(
     mariadb
     mariadb-common
     mariadb-errmsg
+    plasma-browser-integration
+    plasma-discover
     plasma-discover-kns
     plasma-welcome-fedora
     podman-docker
