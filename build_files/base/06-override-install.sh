@@ -4,32 +4,6 @@ echo "::group:: ===$(basename "$0")==="
 
 set -eoux pipefail
 
-# Documentation is available online
-rm -rf /usr/share/doc
-
-# Starship Shell Prompt
-ghcurl "https://github.com/starship/starship/releases/latest/download/starship-$(uname -m)-unknown-linux-gnu.tar.gz" --retry 3 -o /tmp/starship.tar.gz
-ghcurl "https://github.com/starship/starship/releases/latest/download/starship-$(uname -m)-unknown-linux-gnu.tar.gz.sha256" --retry 3 -o /tmp/starship.tar.gz.sha256
-
-echo "$(cat /tmp/starship.tar.gz.sha256) /tmp/starship.tar.gz" | sha256sum --check
-tar -xzf /tmp/starship.tar.gz -C /tmp
-install -c -m 0755 /tmp/starship /usr/bin
-# shellcheck disable=SC2016
-echo 'eval "$(starship init bash)"' >>/etc/bashrc
-
-# Nerdfont symbols
-# to fix motd and prompt atleast temporarily
-ghcurl "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" --retry 3 -o /tmp/nerdfontsymbols.zip
-unzip /tmp/nerdfontsymbols.zip -d /tmp
-mkdir -p /usr/share/fonts/nerd-fonts/NerdFontsSymbolsOnly/
-mv /tmp/SymbolsNerdFont*.ttf /usr/share/fonts/nerd-fonts/NerdFontsSymbolsOnly/
-
-# Bash Prexec v0.6.0
-ghcurl https://raw.githubusercontent.com/rcaloras/bash-preexec/b73ed5f7f953207b958f15b1773721dded697ac3/bash-preexec.sh --retry 3 -Lo /usr/share/bash-prexec
-
-# Caps
-setcap 'cap_net_raw+ep' /usr/libexec/ksysguard/ksgrd_network_helper
-
 # ######
 # BASE IMAGE CHANGES
 # ######
