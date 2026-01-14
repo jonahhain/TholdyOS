@@ -78,7 +78,7 @@ hidden_webui_pages =
     network
 EOF
 
-# Add installer + docs + discourse to panel
+# Add installer to panel
 sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>preferred:\/\/browser,applications:org.kde.konsole.desktop,preferred:\/\/filemanager,applications:liveinst.desktop<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
 # add intaller to kickoff

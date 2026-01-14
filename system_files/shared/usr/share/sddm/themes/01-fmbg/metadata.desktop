@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=FMBG
+Description=FMBG Theme
+Author=Jonah Hain
+Copyright=(c) 2014, David Edmundson
+License=CC-BY-SA
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/jonahhain
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=01-fmbg
+Theme-API=2.0
+QtVersion=6

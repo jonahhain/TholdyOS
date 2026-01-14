@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "Jonah Hain"
+            }
+        ],
+        "Category": "",
+        "Description": "FMBG - Theme variant of KDE BreezeDark",
+        "Id": "io.github.jonahhain.fmbg.desktop",
+        "License": "GPLv2+",
+        "Name": "FMBG",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "0.01",
+        "Website": "https://github.com/jonahhain"
+    },
+    "X-KDE-ParentApp": "",
+    "X-Plasma-MainScript": "defaults"
+}

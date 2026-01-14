@@ -19,18 +19,13 @@ echo "${KEY1_SHA256}  ${KEY1}" | sha256sum -c -
 echo "${BACKUP_KEY_SHA256}  ${BACKUP_KEY}" | sha256sum -c -
 
 # branding related changes
-test -f /usr/share/icons/hicolor/scalable/distributor-logo.svg
-test -f /usr/share/pixmaps/system-logo-white.png
-test -f /usr/share/icons/hicolor/scalable/apps/start-here.svg
-test -f /usr/share/pixmaps/fedora-logo.svg
-test -d /usr/share/plasma/look-and-feel/dev.getaurora.aurora.desktop
-
-test -f /usr/share/backgrounds/aurora/aurora-wallpaper-9/contents/images/3840x2160.jxl
-test -f /usr/share/wallpapers/aurora-wallpaper-9/contents/images/3840x2160.jxl
-test -L /usr/share/backgrounds/default.jxl
+test -f /usr/share/icons/hicolor/scalable/distributor-logo.png
+# test -f /usr/share/pixmaps/system-logo-white.png
+# test -f /usr/share/icons/hicolor/scalable/apps/start-here.svg
+test -f /usr/share/pixmaps/fedora-logo.png
+test -d /usr/share/plasma/look-and-feel/io.github.jonahhain.fmbg.desktop
 
 xmllint --noout \
-  /usr/share/backgrounds/default.xml \
   /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
 # Make sure this garbage never makes it to an image
@@ -92,8 +87,10 @@ UNWANTED_PACKAGES=(
     fedora-logos
     fedora-third-party
     firefox
+    plasma-discover
     plasma-discover-kns
     plasma-discover-rpm-ostree
+    plasma-browser-integration
     plasma-lookandfeel-fedora
     podman-docker
 )

@@ -1,5 +1,5 @@
 [KDE]
-LookAndFeelPackage=dev.getaurora.aurora.desktop
+LookAndFeelPackage=io.github.jonahhain.fmbg.desktop
 SingleClick=false
 ColorScheme=BreezeDark
 widgetStyle=Breeze
