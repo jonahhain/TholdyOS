@@ -63,7 +63,6 @@ fi
 
 IMPORTANT_PACKAGES=(
     distrobox
-    fish
     flatpak
     kwin
     pipewire
