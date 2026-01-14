@@ -27,9 +27,10 @@ cp /ctx/logos/fmbg-banner.png /usr/share/pixmaps/fedora-logo.png
 # magick -background none /ctx/logos/distributor-logo.png -quality 90 -resize 128x128! /usr/share/pixmaps/fedora-logo-sprite.png
 # magick -background none /ctx/logos/distributor-logo.png -quality 90 -resize 256x256! /usr/share/pixmaps/system-logo-white.png
 cp /ctx/logos/distributor-logo.png /usr/share/pixmaps/system-logo.png
+cp /ctx/logos/distributor-logo.png /usr/share/pixmaps/system-logo-white.png
 
 # ln -sr /usr/share/pixmaps/fmbg-banner.png /usr/share/pixmaps/fedora_whitelogo.png
-# ln -sr /usr/share/icons/hicolor/scalable/distributor-logo.png /usr/share/pixmaps/fedora-logo-sprite.png
+ln -sr /usr/share/icons/hicolor/scalable/distributor-logo.png /usr/share/pixmaps/fedora-logo-sprite.png
 ln -sr /usr/share/icons/hicolor/scalable/distributor-logo.png /usr/share/icons/hicolor/scalable/places/distributor-logo.png
 
 # the themes read from relative directories
@@ -41,7 +42,7 @@ cp /usr/share/pixmaps/fmbg-banner.png /usr/share/plasma/look-and-feel/io.github.
 # generate plymouth logos
 mkdir -p /usr/share/plymouth/themes/spinner/
 # magick -background none /usr/share/pixmaps/aurora-banner.svg -quality 90 -resize $((128-3*2))x32 -gravity center -extent 128x32 /usr/share/plymouth/themes/spinner/watermark.png
-cp /usr/share/pixmaps/fmbg-banner.png /usr/share/plymouth/themes/spinner/watermark.png
+cp /usr/share/pixmaps/fmbg-banner-plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
 cp /usr/share/plymouth/themes/spinner/watermark.png /usr/share/plymouth/themes/spinner/kinoite-watermark.png
 
 echo "::endgroup::"

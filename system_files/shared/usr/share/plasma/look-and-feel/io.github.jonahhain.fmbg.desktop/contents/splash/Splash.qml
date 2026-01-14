@@ -37,7 +37,7 @@ Rectangle {
             anchors.centerIn: parent
 
             asynchronous: true
-            source: "images/FMBG-ASCII.png"
+            source: "images/fmbg-banner.png"
 
             sourceSize.width: size
             sourceSize.height: size
