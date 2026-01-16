@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        brand_name: ["aurora"]
+        brand_name: ["tholdyos"]
     with:
       #kernel_pin: 6.14.11-300.fc42.x86_64 ## This is where kernels get pinned.
       brand_name: ${{ matrix.brand_name }}

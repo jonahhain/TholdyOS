@@ -21,41 +21,12 @@ function rebase_helper() {
   echo "Root filesystem: ${ROOT_FS}"
   echo
 
-  # Step 1: Choose image variant
-  echo "Select your Aurora image:"
-  IMAGE_OPTIONS=(aurora aurora-dx)
-
-  # Add current image if it's not already in the list
-  if [[ ! " ${IMAGE_OPTIONS[*]} " =~ \ ${IMAGE_NAME}\  ]]; then
-    IMAGE_OPTIONS+=("${IMAGE_NAME}")
-  fi
-
-  IMAGE_OPTIONS+=(cancel)
-
-  selected_image=$(gum choose "${IMAGE_OPTIONS[@]}")
-  [[ "$selected_image" == "cancel" ]] && exit 0
-
-  IMAGE_NAME="$selected_image"
+  # Step 1: Base Image
+  IMAGE_NAME="$tholdyos"
   base_image="${IMAGE_REGISTRY}/${IMAGE_NAME}"
 
-  # Step 2: Channel Selection
-  declare -a CHANNELS
-  CHANNELS=(stable stable-daily latest)
-    echo "The default selection is stable. Stable-daily (daily builds) are for enthusiasts, and latest is for testers"
-
-  # Fetch Fedora version per channel and build display list
-  declare -a CHANNELS_DISPLAY
-  declare -a CHANNELS_RAW
-
-  for channel in "${CHANNELS[@]}"; do
-    version=$(skopeo inspect --no-tags docker://${base_image}:${channel} | jq -r '.Labels["org.opencontainers.image.version"]' | sed 's/.*-//' | cut -c 1-2)
-    CHANNELS_DISPLAY+=("${channel} (F${version})")
-    CHANNELS_RAW+=("${channel}")
-  done
-
-  channel_choice=$(gum choose "${CHANNELS_DISPLAY[@]}" "cancel")
-  [[ "$channel_choice" == "cancel" ]] && exit 0
-  channel_selected=${channel_choice%% *}
+  # Step 2: Channel
+  channel_selected="stable"
 
   rebase_target="${base_image}:${channel_selected}"
 

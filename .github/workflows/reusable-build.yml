@@ -7,9 +7,9 @@ on:
         default: "['main']"
         type: string
       brand_name:
-        description: "The Brand Name: aurora"
+        description: "The Brand Name: tholdyos"
         required: true
-        default: aurora
+        default: tholdyos
         type: string
       stream_name:
         description: "The Fedora Version: stable, or latest"

@@ -40,17 +40,17 @@ dnf install -y "${SPECS[@]}"
 
 # Anaconda Profile Detection
 
-# Aurora
-tee /etc/anaconda/profile.d/aurora.conf <<'EOF'
-# Anaconda configuration file for Aurora Stable
+# TholdyOS
+tee /etc/anaconda/profile.d/tholdyos.conf <<'EOF'
+# Anaconda configuration file for TholdyOS Stable
 
 [Profile]
 # Define the profile.
-profile_id = aurora
+profile_id = tholdyos
 
 [Profile Detection]
 # Match os-release values
-os_id = aurora
+os_id = tholdyos
 
 [Network]
 default_on_boot = FIRST_WIRED_WITH_LINK
@@ -85,7 +85,7 @@ sed -i '2s/$/;liveinst.desktop/' /usr/share/kde-settings/kde-profile/default/xdg
 
 # Configure
 . /etc/os-release
-echo "Aurora release $VERSION_ID ($VERSION_CODENAME)" >/etc/system-release
+echo "TholdyOS release $VERSION_ID ($VERSION_CODENAME)" >/etc/system-release
 
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/{,s}bin/liveinst || true
 

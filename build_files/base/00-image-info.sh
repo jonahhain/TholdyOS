@@ -4,23 +4,17 @@ echo "::group:: ===$(basename "$0")==="
 
 set -ouex pipefail
 
-IMAGE_PRETTY_NAME="Aurora"
+IMAGE_PRETTY_NAME="TholdyOS"
 IMAGE_LIKE="fedora"
-HOME_URL="https://getaurora.dev/"
-DOCUMENTATION_URL="https://docs.getaurora.dev"
-SUPPORT_URL="https://github.com/ublue-os/aurora/issues/"
-BUG_SUPPORT_URL="https://github.com/ublue-os/aurora/issues/"
-CODE_NAME="Stargazer"
+HOME_URL="https://github.com/jonahhain/TholdyOS"
+DOCUMENTATION_URL="https://github.com/jonahhain/TholdyOS"
+SUPPORT_URL="https://github.com/jonahhain/TholdyOS/issues/"
+BUG_SUPPORT_URL="https://github.com/jonahhain/TholdyOS/issues/"
+CODE_NAME="FMBG"
 VERSION="${VERSION:-00.00000000}"
 
 IMAGE_INFO="/usr/share/ublue-os/image-info.json"
 IMAGE_REF="ostree-image-signed:docker://ghcr.io/$IMAGE_VENDOR/$IMAGE_NAME"
-
-# Image Flavor
-image_flavor="main"
-if [[ "${IMAGE_NAME}" =~ nvidia-open ]]; then
-  image_flavor="nvidia-open"
-fi
 
 cat >$IMAGE_INFO <<EOF
 {

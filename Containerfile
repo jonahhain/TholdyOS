@@ -14,14 +14,14 @@ COPY /system_files /system_files
 # Overwrite files from common if necessary
 COPY /system_files /system_files
 
-## aurora image section
+## image section
 FROM ${BASE_IMAGE}:${FEDORA_MAJOR_VERSION} AS base
 
 ARG AKMODS_FLAVOR="coreos-stable"
 ARG BASE_IMAGE_NAME="kinoite"
 ARG FEDORA_MAJOR_VERSION="41"
-ARG IMAGE_NAME="aurora"
-ARG IMAGE_VENDOR="ublue-os"
+ARG IMAGE_NAME="tholdyos"
+ARG IMAGE_VENDOR="jonahhain"
 ARG KERNEL="6.14.4-200.fc41.x86_64"
 ARG SHA_HEAD_SHORT="dedbeef"
 ARG UBLUE_IMAGE_TAG="stable"

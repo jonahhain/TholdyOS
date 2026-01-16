@@ -1,7 +1,7 @@
 repo_organization := "jonahhain"
 rechunker_image := "ghcr.io/ublue-os/legacy-rechunk:v1.0.1-x86_64@sha256:2627cbf92ca60ab7372070dcf93b40f457926f301509ffba47a04d6a9e1ddaf7"
 images := '(
-    [aurora]=aurora
+    [tholdyos]=tholdyos
 )'
 flavors := '(
     [main]=main
@@ -80,7 +80,7 @@ validate $image $tag $flavor:
 
 # Build Image
 [group('Image')]
-build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
+build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
     #!/usr/bin/bash
 
     echo "::group:: Build Prep"
@@ -165,16 +165,16 @@ build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline
     LABELS+=("--label" "org.opencontainers.image.title=${image_name}")
     LABELS+=("--label" "org.opencontainers.image.version=${ver}")
     LABELS+=("--label" "ostree.linux=${kernel_release}")
-    LABELS+=("--label" "io.artifacthub.package.readme-url=https://raw.githubusercontent.com/ublue-os/aurora/refs/heads/main/README.md")
+    LABELS+=("--label" "io.artifacthub.package.readme-url=https://raw.githubusercontent.com/jonahhain/TholdyOS/refs/heads/main/README.md")
     LABELS+=("--label" "io.artifacthub.package.logo-url=https://avatars.githubusercontent.com/u/120078124?s=200&v=4")
     LABELS+=("--label" "org.opencontainers.image.description=The ultimate productivity workstation")
     LABELS+=("--label" "containers.bootc=1")
     LABELS+=("--label" "org.opencontainers.image.created=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)")
-    LABELS+=("--label" "org.opencontainers.image.source=https://raw.githubusercontent.com/ublue-os/aurora/refs/heads/main/Containerfile")
-    LABELS+=("--label" "org.opencontainers.image.url=https://getaurora.dev")
+    LABELS+=("--label" "org.opencontainers.image.source=https://raw.githubusercontent.com/jonahhain/TholdyOS/refs/heads/main/Containerfile")
+    LABELS+=("--label" "org.opencontainers.image.url=https://github.com/jonahhain/TholdyOS")
     LABELS+=("--label" "org.opencontainers.image.vendor={{ repo_organization }}")
     LABELS+=("--label" "io.artifacthub.package.deprecated=false")
-    LABELS+=("--label" "io.artifacthub.package.keywords=bootc,fedora,aurora,ublue,universal-blue")
+    LABELS+=("--label" "io.artifacthub.package.keywords=bootc,fedora,tholdyos,ublue,universal-blue")
     LABELS+=("--label" "io.artifacthub.package.maintainers=[{\"name\": \"NiHaiden\", \"email\": \"me@nhaiden.io\"}]")
 
     echo "::endgroup::"
@@ -202,12 +202,12 @@ build $image="aurora" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline
 
 # Build Image and Rechunk
 [group('Image')]
-build-rechunk image="aurora" tag="stable" flavor="main" kernel_pin="":
+build-rechunk image="tholdyos" tag="stable" flavor="main" kernel_pin="":
     @{{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 0 0 {{ kernel_pin }}
 
 # Build Image with GHCR Flag
 [group('Image')]
-build-ghcr image="aurora" tag="stable" flavor="main" kernel_pin="":
+build-ghcr image="tholdyos" tag="stable" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     if [[ "${UID}" -gt "0" ]]; then
         echo "Must Run with sudo or as root..."
@@ -217,14 +217,14 @@ build-ghcr image="aurora" tag="stable" flavor="main" kernel_pin="":
 
 # Build Image for Pipeline:
 [group('Image')]
-build-pipeline image="aurora" tag="stable" flavor="main" kernel_pin="":
+build-pipeline image="tholdyos" tag="stable" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     ${SUDOIF} {{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 1 1 {{ kernel_pin }}
 
 # Rechunk Image
 [group('Image')]
 [private]
-rechunk $image="aurora" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
+rechunk $image="tholdyos" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
     #!/usr/bin/bash
 
     echo "::group:: Rechunk Prep"
@@ -271,15 +271,15 @@ rechunk $image="aurora" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
     # Rest of Labels
     LABELS="
         io.artifacthub.package.deprecated=false
-        io.artifacthub.package.keywords=bootc,fedora,aurora,ublue,universal-blue
+        io.artifacthub.package.keywords=bootc,fedora,tholdyos,ublue,universal-blue
         io.artifacthub.package.logo-url=https://avatars.githubusercontent.com/u/120078124?s=200&v=4
         io.artifacthub.package.maintainers=[{\"name\": \"NiHaiden\", \"email\": \"me@nhaiden.io\"}]
-        io.artifacthub.package.readme-url=https://raw.githubusercontent.com/ublue-os/aurora/refs/heads/main/README.md
+        io.artifacthub.package.readme-url=https://raw.githubusercontent.com/jonahhain/TholdyOS/refs/heads/main/README.md
         org.opencontainers.image.created=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)
         org.opencontainers.image.license=Apache-2.0
-        org.opencontainers.image.source=https://raw.githubusercontent.com/ublue-os/aurora/refs/heads/main/Containerfile
+        org.opencontainers.image.source=https://raw.githubusercontent.com/jonahhain/TholdyOS/refs/heads/main/Containerfile
         org.opencontainers.image.title=${image_name}
-        org.opencontainers.image.url=https://getaurora.dev
+        org.opencontainers.image.url=https://github.com/jonahhain/TholdyOS
         org.opencontainers.image.vendor={{ repo_organization }}
         ostree.linux=$(${SUDOIF} ${PODMAN} inspect $CREF | jq -r '.[].Config.Labels["ostree.linux"]')
         containers.bootc=1
@@ -377,7 +377,7 @@ rechunk $image="aurora" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
 
 # Load OCI into Podman Store
 [group('Image')]
-load-rechunk image="aurora" tag="stable" flavor="main":
+load-rechunk image="tholdyos" tag="stable" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -398,7 +398,7 @@ load-rechunk image="aurora" tag="stable" flavor="main":
 
 # Run Container
 [group('Image')]
-run $image="aurora" $tag="stable" $flavor="main":
+run $image="tholdyos" $tag="stable" $flavor="main":
     #!/usr/bin/bash
     set -eoux pipefail
 
@@ -452,7 +452,7 @@ verify-container container="" registry="ghcr.io/ublue-os" key="":
 
 # Secureboot Check
 [group('Utility')]
-secureboot $image="aurora" $tag="stable" $flavor="main":
+secureboot $image="tholdyos" $tag="stable" $flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -504,7 +504,7 @@ secureboot $image="aurora" $tag="stable" $flavor="main":
 # Get Fedora Version of an image
 [group('Utility')]
 [private]
-fedora_version image="aurora" tag="stable" flavor="main" $kernel_pin="":
+fedora_version image="tholdyos" tag="stable" flavor="main" $kernel_pin="":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
@@ -521,7 +521,7 @@ fedora_version image="aurora" tag="stable" flavor="main" $kernel_pin="":
 # Image Name
 [group('Utility')]
 [private]
-image_name image="aurora" tag="stable" flavor="main":
+image_name image="tholdyos" tag="stable" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
@@ -534,7 +534,7 @@ image_name image="aurora" tag="stable" flavor="main":
 
 # Generate Tags
 [group('Utility')]
-generate-build-tags image="aurora" tag="stable" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
+generate-build-tags image="tholdyos" tag="stable" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
     #!/usr/bin/bash
     set -eou pipefail
 

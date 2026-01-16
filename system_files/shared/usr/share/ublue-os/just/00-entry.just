@@ -3,7 +3,6 @@ set ignore-comments := true
 
 _default:
     #!/usr/bin/bash
-    echo "https://docs.getaurora.dev/guides/basic-usage/#using-ujust-in-aurora"
     ujust --list --list-heading $'Available commands:\n' --list-prefix $' - '
 
 # Imports

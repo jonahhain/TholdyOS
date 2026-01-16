@@ -14,7 +14,7 @@ on:
 
 env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
-  IMAGE_NAME: "aurora"
+  IMAGE_NAME: "tholdyos"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -62,7 +62,7 @@ jobs:
           FLAVOR: ${{ matrix.flavor }}
         run: |
           set -eoux pipefail
-          image_name=$(just image_name "aurora" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
+          image_name=$(just image_name "tholdyos" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
           image_ref="${IMAGE_REGISTRY}/${image_name}"
           KARGS="NONE"
           BUILD_DATE=$(date +%Y%m%d)
