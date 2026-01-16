@@ -42,7 +42,7 @@ cp /usr/share/pixmaps/fmbg-banner.png /usr/share/plasma/look-and-feel/io.github.
 # generate plymouth logos
 mkdir -p /usr/share/plymouth/themes/spinner/
 # magick -background none /usr/share/pixmaps/aurora-banner.svg -quality 90 -resize $((128-3*2))x32 -gravity center -extent 128x32 /usr/share/plymouth/themes/spinner/watermark.png
-cp /usr/share/pixmaps/fmbg-banner-plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
+cp /ctx/logos/fmbg-banner-plymouth.png /usr/share/plymouth/themes/spinner/watermark.png
 cp /usr/share/plymouth/themes/spinner/watermark.png /usr/share/plymouth/themes/spinner/kinoite-watermark.png
 
 echo "::endgroup::"
