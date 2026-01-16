@@ -32,12 +32,8 @@ FEDORA_PACKAGES=(
     gum
     ifuse
     igt-gpu-tools
-    input-remapper
-    iwd
     just
-    kcm-fcitx5
     krb5-workstation
-    ksystemlog
     libimobiledevice
     libsss_autofs
     libxcrypt-compat
