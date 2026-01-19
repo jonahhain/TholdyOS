@@ -115,7 +115,6 @@ EXCLUDED_PACKAGES=(
     kdebugsettings
     kde-connect
     kde-partitionmanager
-    kmenuedit
     firefox
     firefox-langpacks
     firewall-config

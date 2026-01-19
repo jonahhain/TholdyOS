@@ -29,7 +29,7 @@ systemctl enable uupd.timer
 systemctl disable rpm-ostreed-automatic.timer
 
 # Hide Desktop Files. Hidden removes mime associations
-for file in htop nvtop org.kde.kwalletmanager; do
+for file in htop nvtop org.kde.kwalletmanager org.kde.kmenuedit; do
     if [[ -f "/usr/share/applications/${file}.desktop" ]]; then
         desktop-file-edit --set-key=Hidden --set-value=true /usr/share/applications/${file}.desktop
     fi
