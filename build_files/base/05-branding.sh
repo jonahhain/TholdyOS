@@ -6,7 +6,7 @@ echo "::group:: ===$(basename "$0")==="
 
 # sets default/pinned applications on the taskmanager applet on the panel, there is no nice way to do this
 # https://bugs.kde.org/show_bug.cgi?id=511560
-sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>preferred:\/\/browser,applications:org.kde.konsole.desktop,preferred:\/\/filemanager<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
+sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>applications:org.kde.konsole.desktop,preferred:\/\/filemanager,preferred:\/\/browser<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
 # Generate Logos from source SVGs
 mkdir -p /usr/share/icons/hicolor/scalable/{apps,places}
