@@ -15,5 +15,42 @@ smallestReadableFont=Noto Sans,8,-1,5,50,0,0,0,0,0
 toolBarFont=Noto Sans,9,-1,5,50,0,0,0,0,0
 accentColorFromWallpaper=true
 
+[KDE Action Restrictions][$i]
+action/options_show_menubar=false
+action/options_show_toolbar=false
+action/options_show_statusbar=false
+action/options_save_Settings=false
+action/options_configure=false
+action/options_configure_keybinding=false
+action/options_configure_toolbars=false
+action/options_configure_notifications=false
+action/show hidden=false
+plasma/allow_configure_when_locked=false
+plasma/containment_actions=false
+plasma/plasmashell/unlockedDesktop=false
+plasma-desktop/add_activities=false
+custom_config=false
+ghns=false
+
 [KDE Control Module Restrictions][$i]
+kcm_activities=false
+kcm_app-permissions=false
+kcm_autostart=false
+kcm_desktoppaths=false
+kcm_feedback=false
+kcm_firewall=false
+kcm_gamecontroller=false
+kcm_kdeconnect=false
+kcm_kaccounts=false
+kcm_kded=false
+kcm_krdpserver=false
+kcm_kwallet5=false
+kcm_kwin_scripts=false
+kcm_kwinrules=false
+kcm_kwinxwayland=false
+kcm_push_notifications=false
+kcm_recentFiles=false
+kcm_screenlocker=false
+kcm_sddm=false
+kcm_users=false
 kcm_updates=false
