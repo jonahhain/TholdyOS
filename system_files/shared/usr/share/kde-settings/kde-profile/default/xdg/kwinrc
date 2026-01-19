@@ -1,4 +1,5 @@
 [Wayland]
+EnablePrimarySelection=false
 InputMethod[$e]=/usr/share/applications/com.github.maliit.keyboard.desktop
 VirtualKeyboardEnabled=true
 
