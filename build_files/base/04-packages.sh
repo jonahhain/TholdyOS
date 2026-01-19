@@ -22,6 +22,7 @@ dnf5 versionlock add plasma-desktop
 
 FEDORA_PACKAGES=(
     adcli
+    blender
     borgbackup
     davfs2
     evtest
@@ -37,7 +38,9 @@ FEDORA_PACKAGES=(
     libimobiledevice
     libsss_autofs
     libxcrypt-compat
+    libreoffice
     lm_sensors
+    musescore
     oddjob-mkhomedir
     plasma-wallpapers-dynamic
     powerstat
@@ -81,7 +84,6 @@ echo "Installing COPR packages with isolated repo enablement..."
 
 # From ublue-os/packages
 copr_install_isolated "ublue-os/packages" \
-    "kcm_ublue" \
     "uupd"
 
 # Version-specific COPR packages
@@ -104,11 +106,22 @@ EXCLUDED_PACKAGES=(
     fedora-bookmarks
     fedora-chromium-config
     fedora-chromium-config-kde
+    fcitx5
+    fcitx5-configtool
+    fcitx5-gtk
+    fcitx5-qt
+    filelight
+    kcm-fcitx5
+    kdebugsettings
+    kde-connect
+    kde-partitionmanager
+    kmenuedit
     firefox
     firefox-langpacks
     firewall-config
     kcharselect
     khelpcenter
+    kjournaldbrowser
     krfb
     krfb-libs
     mariadb
@@ -117,6 +130,7 @@ EXCLUDED_PACKAGES=(
     plasma-browser-integration
     plasma-discover
     plasma-discover-kns
+    plasma-welcome
     plasma-welcome-fedora
     podman-docker
 )
