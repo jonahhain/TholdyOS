@@ -1,0 +1,6 @@
+[Wallet]
+Enabled[$i]=false
+Launch Manager[$i]=false
+
+[org.freedesktop.secrets]
+apiEnabled[$i]=false
