@@ -8,6 +8,19 @@ echo "::group:: ===$(basename "$0")==="
 # https://bugs.kde.org/show_bug.cgi?id=511560
 sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>applications:org.kde.konsole.desktop,preferred:\/\/filemanager,preferred:\/\/browser<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
+# Link Desktop entries to /etc/skel/Desktop
+mkdir -p /etc/skel/Desktop
+ln -sf /var/lib/flatpak/exports/share/applications/org.mozilla.firefox.desktop /etc/skel/Desktop/org.mozilla.firefox.desktop
+ln -sf /usr/share/applications/libreoffice-writer.desktop /etc/skel/Desktop/libreoffice-writer.desktop
+ln -sf /usr/share/applications/libreoffice-impress.desktop /etc/skel/Desktop/libreoffice-impress.desktop
+ln -sf /usr/share/applications/libreoffice-calc.desktop /etc/skel/Desktop/libreoffice-calc.desktop
+ln -sf /usr/share/applications/blender.desktop /etc/skel/Desktop/blender.desktop
+ln -sf /usr/share/applications/org.musescore.MuseScore.desktop /etc/skel/Desktop/org.musescore.MuseScore.desktop
+ln -sf /var/lib/flatpak/exports/share/applications/cc.arduino.IDE2.desktop /etc/skel/Desktop/cc.arduino.IDE2.desktop
+ln -sf /var/lib/flatpak/exports/share/applications/org.audacityteam.Audacity.desktop /etc/skel/Desktop/org.audacityteam.Audacity.desktop
+ln -sf /var/lib/flatpak/exports/share/applications/org.bluej.BlueJ.desktop /etc/skel/Desktop/org.bluej.BlueJ.desktop
+ln -sf /var/lib/flatpak/exports/share/applications/org.kde.okular.desktop /etc/skel/Desktop/org.kde.okular.desktop
+
 # Generate Logos from source SVGs
 mkdir -p /usr/share/icons/hicolor/scalable/{apps,places}
 mkdir -p /usr/share/pixmaps

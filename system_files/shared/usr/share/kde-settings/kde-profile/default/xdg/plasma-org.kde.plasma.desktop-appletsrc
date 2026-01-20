@@ -1,0 +1,12 @@
+[Containments][1]
+activityId=
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.plasma.folder
+wallpaperplugin=org.kde.image
+
+[Containments][1][General]
+positions[$i]={"1920x1080":["7","17","desktop:/cc.arduino.IDE2.desktop","3","0","desktop:/libreoffice-writer.desktop","0","1","desktop:/org.musescore.MuseScore.desktop","2","1","desktop:/libreoffice-impress.desktop","1","0","desktop:/org.mozilla.firefox.desktop","0","0","desktop:/org.audacityteam.Audacity.desktop","4","0","desktop:/org.kde.okular.desktop","6","0","desktop:/blender.desktop","2","0","desktop:/libreoffice-calc.desktop","1","1","desktop:/org.bluej.BlueJ.desktop","5","0"],"1920x1200":["7","17","desktop:/cc.arduino.IDE2.desktop","3","0","desktop:/libreoffice-writer.desktop","0","1","desktop:/org.musescore.MuseScore.desktop","2","1","desktop:/libreoffice-impress.desktop","1","0","desktop:/org.mozilla.firefox.desktop","0","0","desktop:/org.audacityteam.Audacity.desktop","4","0","desktop:/org.kde.okular.desktop","6","0","desktop:/blender.desktop","2","0","desktop:/libreoffice-calc.desktop","1","1","desktop:/org.bluej.BlueJ.desktop","5","0"]}
+sortMode[$i]=-1
