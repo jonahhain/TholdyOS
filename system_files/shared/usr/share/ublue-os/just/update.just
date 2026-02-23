@@ -19,15 +19,6 @@ update:
     else
         sudo bootc upgrade
     fi
-    # rpm-ostree used due to bootc upgrade not supporting local layered packages
-    # Updates system Flatpaks
-    if flatpak remotes | grep -q system; then
-        flatpak update -y
-    fi
-    # Update user Flatpaks
-    if flatpak remotes | grep -q user; then
-        flatpak update --user -y
-    fi
 
 alias auto-update := toggle-updates
 

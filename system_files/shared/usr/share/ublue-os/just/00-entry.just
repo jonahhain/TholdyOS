@@ -9,7 +9,6 @@ _default:
 # specific to Aurora
 import "/usr/share/ublue-os/just/system.just"
 # shared with bluefin
-import "/usr/share/ublue-os/just/apps.just"
 import "/usr/share/ublue-os/just/default.just"
 import "/usr/share/ublue-os/just/shared.just"
 import "/usr/share/ublue-os/just/update.just"
