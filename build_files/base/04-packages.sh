@@ -33,6 +33,7 @@ FEDORA_PACKAGES=(
     gum
     ifuse
     igt-gpu-tools
+    java-latest-openjdk-devel
     just
     krb5-workstation
     libimobiledevice
@@ -55,7 +56,6 @@ FEDORA_PACKAGES=(
     sssd-ad
     sssd-ipa
     sssd-krb5
-    tmux
     uld
     virtualbox-guest-additions
     wireguard-tools
@@ -83,8 +83,10 @@ dnf5 -y install "${FEDORA_PACKAGES[@]}"
 echo "Installing COPR packages with isolated repo enablement..."
 
 # From ublue-os/packages
-copr_install_isolated "ublue-os/packages" \
-    "uupd"
+copr_install_isolated "ublue-os/packages" "uupd"
+
+# PyCharm
+copr_install_isolated "medzik/jetbrains" "pycharm-professional"
 
 # Version-specific COPR packages
 # Example:

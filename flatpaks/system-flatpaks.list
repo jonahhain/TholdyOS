@@ -1,6 +1,8 @@
 org.audacityteam.Audacity
 cc.arduino.IDE2
 org.bluej.BlueJ
+org.freeplane.App
+org.geogebra.GeoGebra
 org.greenfoot.Greenfoot
 org.gtk.Gtk3theme.Breeze
 org.kde.gwenview
@@ -8,5 +10,8 @@ org.kde.haruna
 org.kde.kcalc
 org.kde.okular
 org.kde.skanpage
+edu.mit.Scratch
 org.mozilla.Thunderbird
 org.mozilla.firefox
+org.thonny.Thonny
+com.ultimaker.cura
