@@ -1,0 +1,13 @@
+[Unit]
+Description=Resize LVM volumes on first boot
+After=local-fs.target lvm2-monitor.service
+Wants=lvm2-monitor.service
+ConditionPathExists=!/etc/tholdyos/resizefs-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tholdyos-resizefs
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

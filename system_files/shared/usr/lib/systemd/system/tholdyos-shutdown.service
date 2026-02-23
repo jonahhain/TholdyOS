@@ -1,0 +1,11 @@
+[Unit]
+Description=TholdyOS shutdown hooks
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecStop=/usr/bin/tholdyos-hooks shutdown
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

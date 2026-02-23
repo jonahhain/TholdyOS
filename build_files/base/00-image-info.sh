@@ -17,6 +17,9 @@ IMAGE_INFO="/usr/share/ublue-os/image-info.json"
 IMAGE_REF="ostree-image-signed:docker://ghcr.io/$IMAGE_VENDOR/$IMAGE_NAME"
 
 image_flavor="main"
+if [[ "${IMAGE_NAME}" =~ smartboard ]]; then
+  image_flavor="smartboard"
+fi
 
 cat >$IMAGE_INFO <<EOF
 {

@@ -18,12 +18,10 @@ systemctl disable rpm-ostree-countme.service
 systemctl disable bootloader-update.service
 systemctl disable rpm-ostreed-automatic.timer
 systemctl disable uupd.timer
-systemctl disable ublue-system-setup.service
+systemctl disable tholdyos-boot.service
+systemctl disable tholdyos-shutdown.service
 systemctl disable ublue-guest-user.service
-systemctl disable flatpak-preinstall.service
-systemctl --global disable ublue-flatpak-manager.service
 systemctl --global disable podman-auto-update.timer
-systemctl --global disable ublue-user-setup.service
 
 # Configure Anaconda
 
@@ -98,8 +96,6 @@ curl --retry 3 -Lo /usr/share/pixmaps/scope_installer.png https://raw.githubuser
 tee -a /usr/share/anaconda/interactive-defaults.ks <<EOF
 ostreecontainer --url=$IMAGE_REF:$IMAGE_TAG --transport=containers-storage --no-signature-verification
 %include /usr/share/anaconda/post-scripts/install-configure-upgrade.ks
-%include /usr/share/anaconda/post-scripts/disable-fedora-flatpak.ks
-%include /usr/share/anaconda/post-scripts/install-flatpaks.ks
 %include /usr/share/anaconda/post-scripts/secureboot-enroll-key.ks
 EOF
 
@@ -118,23 +114,6 @@ bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registr
 if [ -n "\$CLEANUP_OSTREE_BOOTED" ]; then
     rm -f /run/ostree-booted
 fi
-%end
-EOF
-
-# Disable Fedora Flatpak
-tee /usr/share/anaconda/post-scripts/disable-fedora-flatpak.ks <<'EOF'
-%post --erroronfail
-systemctl disable flatpak-add-fedora-repos.service
-%end
-EOF
-
-# Install Flatpaks
-tee /usr/share/anaconda/post-scripts/install-flatpaks.ks <<'EOF'
-%post --erroronfail --nochroot
-deployment="$(ostree rev-parse --repo=/mnt/sysimage/ostree/repo ostree/0/1/0)"
-target="/mnt/sysimage/ostree/deploy/default/deploy/$deployment.0/var/lib/"
-mkdir -p "$target"
-rsync -aAXUHKP /var/lib/flatpak "$target"
 %end
 EOF
 

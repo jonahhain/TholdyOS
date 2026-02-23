@@ -4,7 +4,7 @@ on:
     inputs:
       image_flavors:
         description: "JSON string of flavors to build, '[main]'"
-        default: "['main']"
+        default: "['main', 'smartboard']"
         type: string
       brand_name:
         description: "The Brand Name: tholdyos"
@@ -35,8 +35,11 @@ jobs:
       fail-fast: false
       matrix:
         image_flavor: ${{ fromJson(inputs.image_flavors) }}
-        base_name: ["${{ inputs.brand_name }}"]
+        base_name: ["${{ inputs.brand_name }}", "${{ inputs.brand_name }}-ad"]
         stream_name: ["${{ inputs.stream_name }}"]
+        exclude:
+          - base_name: "${{ inputs.brand_name }}"
+            image_flavor: smartboard
 
     steps:
       - name: Checkout
@@ -91,6 +94,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOMAIN_JOIN_KEYTAB: ${{ secrets.DOMAIN_JOIN_KEYTAB }}
           MATRIX_BASE_NAME: ${{ matrix.base_name }}
           MATRIX_STREAM_NAME: ${{ matrix.stream_name }}
           MATRIX_IMAGE_FLAVOR: ${{ matrix.image_flavor }}

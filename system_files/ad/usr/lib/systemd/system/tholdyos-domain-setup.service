@@ -1,0 +1,14 @@
+[Unit]
+Description=Join domain on first boot
+After=network-online.target tholdyos-locale-setup.service tholdyos-resizefs.service
+Wants=network-online.target
+ConditionPathExists=!/etc/tholdyos/domain-setup-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tholdyos-domain-setup
+RemainAfterExit=true
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,3 @@
+# admin roles specific to linuxmuster
+%role-globaladministrator ALL=(ALL:ALL) NOPASSWD: ALL
+%role-schooladministrator ALL=(ALL:ALL) NOPASSWD: ALL

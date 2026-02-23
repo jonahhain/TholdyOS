@@ -1,12 +1,12 @@
 ---
-name: Build ISOs
+name: Build Disk Images
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - ".github/workflows/reusable-build-iso-anaconda-webui.yml"
-      - "deployment/configure_iso_anaconda-webui.sh"
+      - ".github/workflows/reusable-build-disk-image.yml"
+      - "deployment/**"
   workflow_run:
     workflows: ["Stable Images"]
     types:
@@ -14,7 +14,6 @@ on:
 
 env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
-  IMAGE_NAME: "tholdyos"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -22,19 +21,15 @@ concurrency:
 
 jobs:
   build:
-    name: Build ISOs
+    name: Build Disk Images
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.platform == 'amd64' && 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
         platform: [amd64]
-        flavor: ["main"]
+        flavor: ["main", "smartboard"]
         image_version: ["stable"]
-        include:
-          - platform: amd64
-            flavor: "main"
-            image_version: stable
     permissions:
       contents: read
       packages: read
@@ -62,35 +57,59 @@ jobs:
           FLAVOR: ${{ matrix.flavor }}
         run: |
           set -eoux pipefail
-          image_name=$(just image_name "tholdyos" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
+          image_name=$(just image_name "tholdyos-ad" "${{ matrix.image_version }}" "${{ matrix.flavor }}")
           image_ref="${IMAGE_REGISTRY}/${image_name}"
-          KARGS="NONE"
           BUILD_DATE=$(date +%Y%m%d)
+          echo "image_name=$image_name" >> "${GITHUB_OUTPUT}"
           echo "image_ref=$image_ref" >> "${GITHUB_OUTPUT}"
           echo "artifact_format=${image_name}-${{ matrix.image_version }}-${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
-          echo "kargs=$KARGS" >> "${GITHUB_OUTPUT}"
 
-      - name: Build ISO
+      - name: Select BIB config
+        id: config
+        run: |
+          if [[ "${{ matrix.flavor }}" == "smartboard" ]]; then
+            echo "config_file=deployment/config-ad-smartboard.toml" >> "${GITHUB_OUTPUT}"
+          else
+            echo "config_file=deployment/config-ad.toml" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build Disk Image
         id: build
-        uses: ublue-os/titanoboa@main
-        with:
-          image-ref: ${{ steps.image_ref.outputs.image_ref }}:${{ matrix.image_version }}
-          hook-post-rootfs: ${{ github.workspace }}/deployment/configure_iso_anaconda-webui.sh
-          kargs: ${{ steps.image_ref.outputs.kargs }}
+        run: |
+          set -eoux pipefail
+          mkdir -p output
 
-      - name: Rename ISO
+          sudo podman run \
+            --rm \
+            --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
+            -v ${{ steps.config.outputs.config_file }}:/config.toml:ro \
+            -v ./output:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type raw \
+            --rootfs ext4 \
+            ${{ steps.image_ref.outputs.image_ref }}:${{ matrix.image_version }}
+
+      - name: Rename and checksum
         id: rename
         env:
-          OUTPUT_PATH: ${{ steps.build.outputs.iso-dest }}
-          FLAVOR: ${{ matrix.flavor }}
           OUTPUT_NAME: ${{ steps.image_ref.outputs.artifact_format }}
-          IMAGE_VERSION: ${{ matrix.image_version }}
         run: |
-          set -x
-          mkdir -p output
+          set -eoux pipefail
           OUTPUT_DIRECTORY="$(realpath output)"
-          sha256sum "${OUTPUT_PATH}" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.iso-CHECKSUM"
-          mv "${OUTPUT_PATH}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.iso"
+
+          # Find the raw disk image
+          raw_file=$(find "${OUTPUT_DIRECTORY}" -name "disk.raw" -type f | head -1)
+          if [[ -z "${raw_file}" ]]; then
+            echo "Error: disk.raw not found in output directory"
+            exit 1
+          fi
+
+          mv "${raw_file}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img"
+          sha256sum "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img-CHECKSUM"
+
           echo "output_directory=$OUTPUT_DIRECTORY" >> "${GITHUB_OUTPUT}"
 
       - name: Upload to Job Artifacts

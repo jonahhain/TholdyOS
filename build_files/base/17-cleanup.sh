@@ -2,16 +2,20 @@
 
 echo "::group:: ===$(basename "$0")==="
 
-# Disable uupd from updating distroboxes
-sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
-
 set -eoux pipefail
+
+# Disable all uupd modules except 'system'
+sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
+sed -i 's|uupd|& --disable-module-flatpak|' /usr/lib/systemd/system/uupd.service
+sed -i 's|uupd|& --disable-module-brew|' /usr/lib/systemd/system/uupd.service
 
 # Setup Systemd
 systemctl enable rpm-ostree-countme.service
 systemctl enable dconf-update.service
 systemctl enable aurora-groups.service
 systemctl enable usr-share-sddm-themes.mount
+systemctl enable tholdyos-boot.service
+systemctl enable tholdyos-shutdown.service
 systemctl enable ublue-system-setup.service
 systemctl --global enable ublue-user-setup.service
 systemctl --global enable podman-auto-update.timer
@@ -27,6 +31,12 @@ systemctl enable uupd.timer
 
 # Disable the old update timer
 systemctl disable rpm-ostreed-automatic.timer
+
+# Add hooks to PAM
+cat >> /etc/pam.d/postlogin <<'EOF'
+session optional pam_exec.so type=open_session /usr/bin/tholdyos-hooks login
+session optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logout
+EOF
 
 # Hide Desktop Files. Hidden removes mime associations
 for file in htop nvtop org.kde.kwalletmanager org.kde.kmenuedit; do

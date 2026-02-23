@@ -1,0 +1,49 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+echo "=== TholdyOS resizefs ==="
+
+# Identify LVM volumes and partitions
+ROOT_SOURCE=$(findmnt -n -o SOURCE "/" 2>/dev/null)
+ROOT_DM=$(readlink -f "$ROOT_SOURCE")
+ROOT_LV=$(lvs --noheadings -o lv_dm_path,lv_path 2>/dev/null \
+    | awk -v dm="$ROOT_DM" '$1 == dm { print $2; exit }')
+VG_NAME=$(lvs --noheadings -o vg_name "$ROOT_LV" 2>/dev/null | tr -d ' ')
+PV_DEV=$(pvs --noheadings -o pv_name -S "vg_name=$VG_NAME" 2>/dev/null | tr -d ' ' | head -1)
+PV_REAL=$(readlink -f "$PV_DEV")
+PARENT_DISK=$(lsblk -ndo PKNAME "$PV_REAL" 2>/dev/null | head -1)
+PART_NUM=$(echo "$PV_REAL" | grep -oP '\d+$')
+
+# Grow the LVM to fill the disk
+growpart "/dev/${PARENT_DISK}" "${PART_NUM}"
+pvresize "$PV_DEV"
+
+# Extend root LV to fixed target size
+if ! lvextend -L "40G" "$ROOT_LV" 2>&1; then
+    echo "root LV may already be at maximum size"
+fi
+
+if ! resize2fs "$ROOT_LV" 2>&1; then
+    echo "resize2fs on root failed"
+fi
+
+# Give remaining free space to /var/home
+HOME_LV=$(lvs --noheadings -o lv_path -S "vg_name=$VG_NAME" 2>/dev/null \
+    | tr -d ' ' | grep -v "$(basename "$ROOT_LV")" | head -1)
+
+if [[ -n "$HOME_LV" ]]; then
+    if ! lvextend -l +100%FREE "$HOME_LV" 2>&1; then
+        echo "home LV may already be at maximum size"
+    fi
+
+    if ! resize2fs "$HOME_LV" 2>&1; then
+        echo "resize2fs on home failed"
+    fi
+else
+    echo "No home LV found"
+fi
+
+touch /etc/tholdyos/resizefs-done
+
+echo "=== resizefs complete ==="

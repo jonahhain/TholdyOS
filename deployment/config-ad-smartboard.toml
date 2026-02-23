@@ -1,0 +1,34 @@
+# bootc-image-builder configuration for tholdyos-ad-smartboard
+
+[[customizations.disk.partitions]]
+fs_type = "vfat"
+mountpoint = "/boot/efi"
+minsize = "600 MiB"
+
+[[customizations.disk.partitions]]
+fs_type = "ext4"
+mountpoint = "/boot"
+minsize = "2 GiB"
+
+[[customizations.disk.partitions]]
+type = "lvm"
+minsize = "6 GiB"
+
+[[customizations.disk.partitions.logical_volumes]]
+fs_type = "ext4"
+mountpoint = "/"
+minsize = "4 GiB"
+
+[[customizations.disk.partitions.logical_volumes]]
+fs_type = "ext4"
+mountpoint = "/var/home"
+minsize = "2 GiB"
+
+# Local admin user
+[[customizations.user]]
+name = "local-admin"
+groups = ["wheel"]
+
+# Default unprivileged user
+[[customizations.user]]
+name = "station"

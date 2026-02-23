@@ -1,0 +1,12 @@
+[Unit]
+Description=TholdyOS boot hooks
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tholdyos-hooks boot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

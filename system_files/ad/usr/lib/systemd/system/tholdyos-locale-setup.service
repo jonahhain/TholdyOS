@@ -1,0 +1,13 @@
+[Unit]
+Description=Apply locale, keyboard, and timezone
+After=systemd-localed.service systemd-timedated.service
+Wants=systemd-localed.service systemd-timedated.service
+ConditionPathExists=!/etc/tholdyos/locale-setup-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tholdyos-locale-setup
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

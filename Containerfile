@@ -5,7 +5,7 @@ ARG BASE_IMAGE="ghcr.io/ublue-os/${SOURCE_IMAGE}"
 
 FROM scratch AS ctx
 COPY /build_files /build_files
-COPY /iso_files /iso_files
+COPY /deployment /deployment
 
 COPY /flatpaks /flatpaks
 COPY /logos /logos
@@ -32,6 +32,7 @@ ARG IMAGE_FLAVOR=""
 RUN --mount=type=tmpfs,dst=/boot \
     --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=secret,id=GITHUB_TOKEN \
+    --mount=type=secret,id=DOMAIN_JOIN_KEYTAB \
     /ctx/build_files/shared/build.sh
 
 # Makes `/opt` writeable by default

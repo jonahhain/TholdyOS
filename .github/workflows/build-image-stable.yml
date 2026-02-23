@@ -6,9 +6,9 @@ on:
       - main
     paths-ignore:
       - "**.md"
-      - "iso_files/**"
-      - "flatpaks/**"
+      - "deployment/**"
       - ".github/workflows/*iso*"
+      - ".github/workflows/*disk-image*"
       - "just/*.just"
   workflow_call:
   workflow_dispatch:

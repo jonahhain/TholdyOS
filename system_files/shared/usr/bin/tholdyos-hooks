@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+HOOKS_DIR="/etc/tholdyos/hooks"
+DOMAIN_CONF="/etc/tholdyos/domain.conf"
+
+hook_type="${1:-}"
+
+# Source domain config if available
+if [[ -f "$DOMAIN_CONF" ]]; then
+    set -a
+    source "$DOMAIN_CONF"
+    set +a
+fi
+
+case "$hook_type" in
+    boot|shutdown)
+        ;;
+    login|logout)
+        THOLDYOS_USER="${PAM_USER:-}"
+        [[ -n "$THOLDYOS_USER" ]] || exit 0
+
+        THOLDYOS_UID=$(id -u "$THOLDYOS_USER" 2>/dev/null) || exit 0
+        THOLDYOS_GID=$(id -g "$THOLDYOS_USER" 2>/dev/null) || exit 0
+        export THOLDYOS_USER THOLDYOS_UID THOLDYOS_GID
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+
+hook_dir="${HOOKS_DIR}/${hook_type}.d"
+[[ -d "$hook_dir" ]] || exit 0
+
+echo "--- Running ${hook_type} hooks ---"
+
+for script in "$hook_dir"/*; do
+    [[ -f "$script" && -x "$script" ]] || continue
+    "$script" || echo "Hook failed: $script (exit code $?)" >&2
+done
+
+echo "--- Finished running ${hook_type} hooks ---"

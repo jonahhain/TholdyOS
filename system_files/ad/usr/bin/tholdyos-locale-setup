@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+mkdir -p "/etc/tholdyos"
+
+localectl set-locale "LANG=de_DE.UTF-8"
+localectl set-keymap "de"
+localectl set-x11-keymap "de"
+
+timedatectl set-timezone "Europe/Berlin"
+
+touch "/etc/tholdyos/locale-setup-done"

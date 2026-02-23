@@ -49,6 +49,10 @@ echo "::endgroup::"
 # Regenerate initramfs
 /ctx/build_files/base/19-initramfs.sh
 
+if [ "${IMAGE_FLAVOR}" == "ad" ] ; then
+  /ctx/build_files/shared/build-ad.sh
+fi
+
 # Validate all repos are disabled before committing
 /ctx/build_files/shared/validate-repos.sh
 

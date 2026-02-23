@@ -2,9 +2,11 @@ repo_organization := "jonahhain"
 rechunker_image := "ghcr.io/ublue-os/legacy-rechunk:v1.0.1-x86_64@sha256:2627cbf92ca60ab7372070dcf93b40f457926f301509ffba47a04d6a9e1ddaf7"
 images := '(
     [tholdyos]=tholdyos
+    [tholdyos-ad]=tholdyos-ad
 )'
 flavors := '(
     [main]=main
+    [smartboard]=smartboard
 )'
 tags := '(
     [stable]=stable
@@ -78,6 +80,11 @@ validate $image $tag $flavor:
         exit 1
     fi
 
+    if [[ "${flavor}" == "smartboard" && "${image}" != "tholdyos-ad" ]]; then
+        echo "Flavor 'smartboard' is only supported for 'tholdyos-ad'"
+        exit 1
+    fi
+
 # Build Image
 [group('Image')]
 build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
@@ -139,6 +146,10 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
 
     # Build Arguments
     BUILD_ARGS=()
+    # Target
+    if [[ "${image}" =~ ad ]]; then
+           BUILD_ARGS+=("--build-arg" "IMAGE_FLAVOR=ad")
+    fi
     BUILD_ARGS+=("--build-arg" "AKMODS_FLAVOR=${akmods_flavor}")
     BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${base_image_name}")
     BUILD_ARGS+=("--build-arg" "FEDORA_MAJOR_VERSION=${fedora_version}")
@@ -175,7 +186,6 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
     LABELS+=("--label" "org.opencontainers.image.vendor={{ repo_organization }}")
     LABELS+=("--label" "io.artifacthub.package.deprecated=false")
     LABELS+=("--label" "io.artifacthub.package.keywords=bootc,fedora,tholdyos,ublue,universal-blue")
-    LABELS+=("--label" "io.artifacthub.package.maintainers=[{\"name\": \"NiHaiden\", \"email\": \"me@nhaiden.io\"}]")
 
     echo "::endgroup::"
     PODMAN_BUILD_ARGS=("${BUILD_ARGS[@]}" "${LABELS[@]}" --tag localhost/"${image_name}:${tag}" --file Containerfile)
@@ -186,6 +196,12 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
         PODMAN_BUILD_ARGS+=(--secret "id=GITHUB_TOKEN,env=GITHUB_TOKEN")
     else
         echo "No GitHub token found - build may hit rate limit"
+    fi
+
+    # Add domain join keytab secret if available
+    if [[ -n "${DOMAIN_JOIN_KEYTAB:-}" ]]; then
+        echo "Adding domain join keytab as build secret"
+        PODMAN_BUILD_ARGS+=(--secret "id=DOMAIN_JOIN_KEYTAB,env=DOMAIN_JOIN_KEYTAB")
     fi
 
     ${PODMAN} build "${PODMAN_BUILD_ARGS[@]}" .
@@ -220,6 +236,73 @@ build-ghcr image="tholdyos" tag="stable" flavor="main" kernel_pin="":
 build-pipeline image="tholdyos" tag="stable" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     ${SUDOIF} {{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 1 1 {{ kernel_pin }}
+
+# Build Disk Image for tholdyos-ad
+[group('Image')]
+build-disk-image $image="tholdyos-ad" $tag="stable" $flavor="main" ghcr="0":
+    #!/usr/bin/bash
+    set -eoux pipefail
+
+    # Validate
+    {{ just }} validate "${image}" "${tag}" "${flavor}"
+
+    # Only tholdyos-ad supports disk image builds
+    if [[ ! "${image}" =~ ad ]]; then
+        echo "Disk image builds are only supported for 'tholdyos-ad'"
+        exit 1
+    fi
+
+    # Image Name
+    image_name=$({{ just }} image_name {{ image }} {{ tag }} {{ flavor }})
+
+    # Check if container image exists
+    ID=$(${PODMAN} images --filter reference=localhost/"${image_name}":"${tag}" --format "'{{ '{{.ID}}' }}'")
+    if [[ -z "$ID" ]]; then
+        echo "No image to build from"
+        exit 1
+    fi
+
+    # Select BIB config based on flavor
+    if [[ "{{ flavor }}" == "smartboard" ]]; then
+        bib_config="deployment/config-ad-smartboard.toml"
+    else
+        bib_config="deployment/config-ad.toml"
+    fi
+
+    # Output directory
+    output_dir="${PWD}/disk_image_build"
+    mkdir -p "${output_dir}"
+
+    # Determine image reference
+    if [[ "{{ ghcr }}" == "1" ]]; then
+        image_ref="ghcr.io/{{ repo_organization }}/${image_name}:${tag}"
+    else
+        image_ref="localhost/${image_name}:${tag}"
+    fi
+
+    # Build disk image with bootc-image-builder
+    ${SUDOIF} ${PODMAN} run \
+        --rm \
+        -it \
+        --privileged \
+        --pull=newer \
+        --security-opt label=type:unconfined_t \
+        -v "${bib_config}":/config.toml:ro \
+        -v "${output_dir}":/output \
+        -v /var/lib/containers/storage:/var/lib/containers/storage \
+        quay.io/centos-bootc/bootc-image-builder:latest \
+        --type raw \
+        --rootfs btrfs \
+        "${image_ref}"
+
+    # Rename output
+    BUILD_DATE=$(date +%Y%m%d)
+    raw_file=$(find "${output_dir}" -name "disk.raw" -type f | head -1)
+    final_name="${image_name}-${tag}-${BUILD_DATE}.img"
+
+    mv "${raw_file}" "${output_dir}/${final_name}"
+
+    echo "Build successful: ${output_dir}/${final_name}"
 
 # Rechunk Image
 [group('Image')]

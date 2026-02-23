@@ -1,0 +1,82 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+CONFIG_DIR="/etc/tholdyos"
+
+set -a
+source "${CONFIG_DIR}/domain.conf"
+set +a
+
+SSSD_CONF="/etc/sssd/sssd.conf"
+TLS_DIR="/var/lib/samba/private/tls"
+CA_LOCAL="${TLS_DIR}/${DOMAIN}.pem"
+
+sssd_set() {
+    local key="$1" value="$2"
+    if grep -qP "^\s*${key}\s*=" "$SSSD_CONF"; then
+        sed -i "s|^\s*${key}\s*=.*|${key} = ${value}|" "$SSSD_CONF"
+    else
+        sed -i "\|^\[domain/${DOMAIN}\]|a ${key} = ${value}" "$SSSD_CONF"
+    fi
+}
+
+# Discover domain
+while ! realm discover "$DOMAIN"; do
+    sleep 10
+    echo "Retrying domain discovery..."
+done
+
+# Enable authentication with sssd
+authselect select sssd with-mkhomedir --force
+
+# Re-add PAM hooks (authselect overwrites postlogin)
+cat >> /etc/pam.d/postlogin <<'EOF'
+session optional pam_exec.so type=open_session /usr/bin/tholdyos-hooks login
+session optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logout
+EOF
+
+# Join domain
+kinit -k -t "${CONFIG_DIR}/domain-join.keytab" "domain-join@${REALM}"
+realm join -v "$DOMAIN" -U "domain-join"
+
+# Retrieve CA certificate from sysvol
+HOSTNAME_SHORT=$(hostname -s | tr '[:lower:]' '[:upper:]')
+kinit -k "${HOSTNAME_SHORT}\$"
+
+SYSVOL_MNT=$(mktemp -d)
+if mount.cifs "//${DC_HOSTNAME}/sysvol" "$SYSVOL_MNT" \
+    -o "sec=krb5,vers=3.0,nodev,nosuid" 2>/dev/null; then
+
+    CA_SRC="${SYSVOL_MNT}/${DOMAIN}/tls/cacert.pem"
+    if [[ -f "$CA_SRC" ]]; then
+        mkdir -p "$TLS_DIR"
+        cp "$CA_SRC" "$CA_LOCAL"
+    else
+        echo "CA certificate not found on sysvol"
+    fi
+    umount "$SYSVOL_MNT"
+else
+    echo "Could not mount sysvol"
+fi
+rmdir "$SYSVOL_MNT" 2>/dev/null || true
+
+# Adjust SSSD configuration
+sssd_set "use_fully_qualified_names" "False"
+sssd_set "override_homedir" "/home/%u"
+sssd_set "krb5_validate" "False"
+sssd_set "ad_gpo_access_control" "permissive"
+sssd_set "ad_gpo_ignore_unreadable" "True"
+sssd_set "ad_maximum_machine_account_password_age" "0"
+sssd_set "case_sensitive" "False"
+
+systemctl restart sssd
+
+# Verify domain join
+getent group "domain users"
+kinit -k "${HOSTNAME_SHORT}\$"
+
+# Cleanup
+kdestroy || true
+rm -f "${CONFIG_DIR}/domain-join.keytab"
+touch "${CONFIG_DIR}/domain-setup-done"
