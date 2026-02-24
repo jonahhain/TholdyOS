@@ -11,13 +11,29 @@ mkdir -p /tmp/scripts/helpers
 install -Dm0755 /ctx/build_files/shared/utils/ghcurl /tmp/scripts/helpers/ghcurl
 export PATH="/tmp/scripts/helpers:$PATH"
 
+# Generate flatpak preinstall list
+if [[ "${IMAGE_NAME}" =~ smartboard ]]; then
+    FLATPAK_LIST="/etc/ublue-os/system-flatpaks-smartboard.list"
+else
+    FLATPAK_LIST="/etc/ublue-os/system-flatpaks.list"
+fi
+mkdir -p /etc/flatpak/preinstall.d
+while IFS= read -r app; do
+    [[ -z "$app" || "$app" == \#* ]] && continue
+    cat <<EOF
+[Flatpak Preinstall $app]
+Branch=stable
+
+EOF
+done < "$FLATPAK_LIST" > /etc/flatpak/preinstall.d/tholdyos.preinstall
+
 echo "::endgroup::"
 
-# Install smartboard Packages and setup AD
+# Changes specific to AD
 /ctx/build_files/ad/00-ad.sh
 
 # Validate all repos are disabled before committing
 /ctx/build_files/shared/validate-repos.sh
 
-# ad specific tests
+# Tests specific to AD
 /ctx/build_files/ad/10-tests-ad.sh

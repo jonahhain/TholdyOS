@@ -30,6 +30,39 @@ benchmark:
     pushd $(mktemp -d)
     stress-ng --matrix 0 -t 1m --times
 
+# Install system flatpaks for rebasers
+[group('System')]
+install-system-flatpaks $smartboard="dynamic":
+    #!/usr/bin/env bash
+    TARGET_FLATPAK_FILE="${TARGET_FLATPAK_FILE:-/etc/ublue-os/system-flatpaks.list}"
+    TARGET_SMARTBOARD_FILE="${TARGET_SMARTBOARD_FILE:-/etc/ublue-os/system-flatpaks-smartboard.list}"
+    case "$smartboard" in
+        "0"|"1")
+            ADD_SMARTBOARD="$smartboard"
+            ;;
+        "dynamic")
+            if [[ $(jq '."image-flavor"' /usr/share/ublue-os/image-info.json) =~ smartboard ]] ; then
+                ADD_SMARTBOARD=1
+            fi
+            ;;
+        *)
+            echo "Unsupported option"
+            exit 1
+            ;;
+    esac
+
+    flatpak remote-add --if-not-exists --system flathub https://flathub.org/repo/flathub.flatpakrepo
+    # Disable Fedora Flatpak remotes
+       for remote in fedora fedora-testing; do
+           if flatpak remote-list | grep -q "$remote"; then
+               flatpak remote-delete "$remote"
+           fi
+       done
+    xargs flatpak --system -y install --reinstall --or-update < $TARGET_FLATPAK_FILE
+    if [ "$ADD_SMARTBOARD" == "1" ] ; then
+        xargs flatpak --system -y install --reinstall --or-update < $TARGET_SMARTBOARD_FILE
+    fi
+
 # Configure grub bootmenu visibility
 [group('System')]
 configure-grub:

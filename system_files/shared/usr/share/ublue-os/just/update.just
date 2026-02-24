@@ -14,10 +14,19 @@ update:
         echo "automatic updates are currently running, use \`journalctl -fexu $SERVICE\` to see logs"
         exit 1
     fi
+    # rpm-ostree used due to bootc upgrade not supporting local layered packages
     if grep -q -E -e "LockLayering=false" /etc/rpm-ostreed.conf ; then
         rpm-ostree upgrade
     else
         sudo bootc upgrade
+    fi
+    # Updates system Flatpaks
+    if flatpak remotes | grep -q system; then
+        flatpak update -y
+    fi
+    # Update user Flatpaks
+    if flatpak remotes | grep -q user; then
+        flatpak update --user -y
     fi
 
 alias auto-update := toggle-updates

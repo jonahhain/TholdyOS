@@ -4,9 +4,8 @@ echo "::group:: ===$(basename "$0")==="
 
 set -eoux pipefail
 
-# Disable all uupd modules except 'system'
+# Disable homebrew and distrobox updates
 sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
-sed -i 's|uupd|& --disable-module-flatpak|' /usr/lib/systemd/system/uupd.service
 sed -i 's|uupd|& --disable-module-brew|' /usr/lib/systemd/system/uupd.service
 
 # Setup Systemd

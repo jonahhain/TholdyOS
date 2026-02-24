@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - "**.md"
       - "deployment/**"
+      - "flatpaks/**"
       - ".github/workflows/*iso*"
       - ".github/workflows/*disk-image*"
       - "just/*.just"

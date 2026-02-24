@@ -1,5 +1,6 @@
 [Unit]
 Description=Join domain on first boot
+Before=flatpak-preinstall.service
 After=network-online.target tholdyos-locale-setup.service tholdyos-resizefs.service
 Wants=network-online.target
 ConditionPathExists=!/etc/tholdyos/domain-setup-done
