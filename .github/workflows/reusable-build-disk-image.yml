@@ -112,8 +112,8 @@ jobs:
             exit 1
           fi
 
-          mv "${raw_file}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img"
-          sha256sum "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img-CHECKSUM"
+          sudo mv "${raw_file}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img"
+          sha256sum "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img.sha256"
 
           echo "output_directory=$OUTPUT_DIRECTORY" >> "${GITHUB_OUTPUT}"
 
