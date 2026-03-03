@@ -1,5 +1,5 @@
 images:
-  - name: kinoite-main
-    image: ghcr.io/ublue-os/kinoite-main
-    tag: latest
-    digest: sha256:bc8c0e5109e8751502f016d4eaa57fa4cdbdf7673840106d80b4642d17fa57b9
+  - name: kinoite
+    image: quay.io/fedora-ostree-desktops/kinoite
+    tag: 43
+    digest: sha256:9f42a508730de677f4e5b78d3de6fb807cb632f8a5b715f151a186b7786b207a

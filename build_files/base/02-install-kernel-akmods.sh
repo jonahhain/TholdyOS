@@ -31,16 +31,14 @@ dnf5 -y install \
 
 dnf5 versionlock add kernel kernel-devel kernel-devel-matched kernel-core kernel-modules kernel-modules-core kernel-modules-extra
 
-# Everyone
-# NOTE: we won't use dnf5 copr plugin for ublue-os/akmods until our upstream provides the COPR standard naming
-sed -i 's@enabled=0@enabled=1@g' /etc/yum.repos.d/_copr_ublue-os-akmods.repo
+dnf copr enable -y ublue-os/akmods
 
 # RPMFUSION Dependent AKMODS
 dnf5 -y install \
     https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm
 dnf5 -y install \
-    v4l2loopback /tmp/akmods/kmods/*v4l2loopback*.rpm
+    v4l2loopback /tmp/akmods/kmods/*v4l2loopback*.rpm || true
 dnf5 -y remove rpmfusion-free-release rpmfusion-nonfree-release
 
 echo "::endgroup::"

@@ -19,7 +19,6 @@ IMPORTANT_PACKAGES_AD=(
     sssd
     sssd-ad
     sssd-tools
-    sssd-ipa
     sssd-krb5
 )
 

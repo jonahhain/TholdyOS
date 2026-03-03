@@ -1,5 +1,10 @@
-repo_organization := "jonahhain"
+export repo_organization := env("GITHUB_REPOSITORY_OWNER", "jonahhain")
+export base_image_org := env("BASE_IMAGE_ORG", "quay.io/fedora-ostree-desktops")
+export base_image_name := env("BASE_IMAGE_NAME", "kinoite")
 rechunker_image := "ghcr.io/ublue-os/legacy-rechunk:v1.0.1-x86_64@sha256:2627cbf92ca60ab7372070dcf93b40f457926f301509ffba47a04d6a9e1ddaf7"
+stable_version := "43"
+latest_version := "43"
+beta_version := "43"
 images := '(
     [tholdyos]=tholdyos
     [tholdyos-ad]=tholdyos-ad
@@ -99,9 +104,6 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
     # Image Name
     image_name=$({{ just }} image_name {{ image }} {{ tag }} {{ flavor }})
 
-    # Base Image
-    base_image_name="kinoite"
-
     # AKMODS Flavor (stable uses coreos-stable)
     akmods_flavor="coreos-stable"
 
@@ -112,7 +114,7 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
     fedora_version=$({{ just }} fedora_version '{{ image }}' '{{ tag }}' '{{ flavor }}' '{{ kernel_pin }}')
 
     # Verify Base Image with cosign
-    {{ just }} verify-container "${base_image_name}-main:${fedora_version}"
+    {{ just }} verify-container quay.io-fedora-ostree-desktops.pub ${base_image_org}/${base_image_name}:${fedora_version}
 
     # Kernel Release/Pin
     if [[ -z "${kernel_pin:-}" ]]; then
@@ -151,6 +153,7 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
            BUILD_ARGS+=("--build-arg" "IMAGE_FLAVOR=ad")
     fi
     BUILD_ARGS+=("--build-arg" "AKMODS_FLAVOR=${akmods_flavor}")
+    BUILD_ARGS+=("--build-arg" "BASE_IMAGE_ORG=${base_image_org}")
     BUILD_ARGS+=("--build-arg" "BASE_IMAGE_NAME=${base_image_name}")
     BUILD_ARGS+=("--build-arg" "FEDORA_MAJOR_VERSION=${fedora_version}")
     BUILD_ARGS+=("--build-arg" "IMAGE_NAME=${image_name}")
@@ -168,7 +171,7 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
     # Pull in most recent upstream base image
     # if building locally/not ghcr pull the new image
     if [[ {{ ghcr }} == "0" ]]; then
-        ${PODMAN} pull "ghcr.io/ublue-os/kinoite-main:${fedora_version}"
+        ${PODMAN} pull "${base_image_org}/${base_image_name}:${fedora_version}"
     fi
 
     # Labels
@@ -370,7 +373,7 @@ rechunk $image="tholdyos" $tag="stable" $flavor="main" ghcr="0" pipeline="0":
 
     # Cleanup Space during Github Action
     if [[ "{{ ghcr }}" == "1" ]]; then
-        base_image_name=kinoite-main
+        base_image_name=kinoite
         ID=$(${SUDOIF} ${PODMAN} images --filter reference=ghcr.io/{{ repo_organization }}/"${base_image_name}":${fedora_version} --format "{{ '{{.ID}}' }}")
         if [[ -n "$ID" ]]; then
             ${PODMAN} rmi "$ID"
@@ -502,7 +505,7 @@ run $image="tholdyos" $tag="stable" $flavor="main":
 
 # Verify Container with Cosign
 [group('Utility')]
-verify-container container="" registry="ghcr.io/ublue-os" key="":
+verify-container key="" container="":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -521,14 +524,8 @@ verify-container container="" registry="ghcr.io/ublue-os" key="":
         fi
     fi
 
-    # Public Key for Container Verification
-    key={{ key }}
-    if [[ -z "${key:-}" ]]; then
-        key="https://raw.githubusercontent.com/ublue-os/main/main/cosign.pub"
-    fi
-
     # Verify Container using cosign public key
-    if ! cosign verify --key "${key}" "{{ registry }}"/"{{ container }}" >/dev/null; then
+    if ! cosign verify --key "{{ key }}" "{{ container }}" >/dev/null; then
         echo "NOTICE: Verification failed. Please ensure your public key is correct."
         exit 1
     fi
@@ -592,8 +589,31 @@ fedora_version image="tholdyos" tag="stable" flavor="main" $kernel_pin="":
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
     if [[ ! -f /tmp/manifest.json ]]; then
-        # CoreOS does not uses cosign
-        skopeo inspect --retry-times 3 docker://quay.io/fedora/fedora-coreos:stable > /tmp/manifest.json
+        # Determine Version
+        if [[ "{{ tag }}" =~ stable ]]; then
+            VERSION="{{ stable_version }}"
+        elif [[ "{{ tag }}" =~ beta ]]; then
+            VERSION="{{ beta_version }}"
+        else
+            VERSION="{{ latest_version }}"
+        fi
+
+        # Determine Akmods Flavor
+        if [[ "{{ tag }}" =~ stable ]]; then
+            AKMODS_FLAVOR="coreos-stable"
+        else
+            AKMODS_FLAVOR="main"
+        fi
+
+        # Verify akmods existence
+        echo "Checking for akmods: ghcr.io/ublue-os/akmods:${AKMODS_FLAVOR}-${VERSION}" >&2
+        if ! skopeo inspect --retry-times 3 "docker://ghcr.io/ublue-os/akmods:${AKMODS_FLAVOR}-${VERSION}" > /dev/null; then
+             echo "Error: Akmods not found for flavor ${AKMODS_FLAVOR} and version ${VERSION}" >&2
+             exit 1
+        fi
+
+        # Write cache
+        echo "{\"Labels\": {\"org.opencontainers.image.version\": \"${VERSION}\"}}" > /tmp/manifest.json
     fi
     fedora_version=$(jq -r '.Labels["org.opencontainers.image.version"]' < /tmp/manifest.json | grep -oP '^[0-9]+')
     if [[ -n "${kernel_pin:-}" ]]; then

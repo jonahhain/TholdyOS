@@ -30,7 +30,6 @@ FEDORA_PACKAGES=(
     sssd
     sssd-ad
     sssd-tools
-    sssd-ipa
     sssd-krb5
 )
 

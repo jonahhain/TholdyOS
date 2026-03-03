@@ -4,60 +4,28 @@ set -eoux pipefail
 
 echo "::group:: Copy Files"
 
-# Copy ISO list for `install-system-flatpaks`
-install -Dm0644 -t /etc/ublue-os/ /ctx/flatpaks/*.list
+# Speeds up local builds
+dnf config-manager setopt keepcache=1
 
-# We need to remove this package here because lots of files we add from `projectbluefin/common` override the rpm files and they also go away when you do `dnf remove`
-# TODO: this can be removed whenever we stop doing FROM ublue-os/kinoite-main
-dnf remove -y ublue-os-just ublue-os-signing ublue-os-udev-rules ublue-os-luks ublue-os-update-services
+# We need to remove this package here because lots of files we add from `{projectbluefin,get-aurora-dev}/common` override the rpm files
+# they go away when you do dnf remove
+# Keep *-logos in RPM DB for downstream package installations
+# We are not allowed to ship an empty fedora-logos package
+dnf -y swap fedora-logos generic-logos
+rpm --erase --nodeps --nodb generic-logos
 
 # Copy Files to Container
 rsync -rvKl /ctx/system_files/shared/ /
 
-mkdir -p /tmp/scripts/helpers
-install -Dm0755 /ctx/build_files/shared/utils/ghcurl /tmp/scripts/helpers/ghcurl
-export PATH="/tmp/scripts/helpers:$PATH"
+# Copy flatpak list files
+mkdir -p /etc/ublue-os/
+cp /ctx/flatpaks/system-flatpaks*.list /etc/ublue-os/
 
-echo "::endgroup::"
-
-# Generate image-info.json, os-release
-/ctx/build_files/base/00-image-info.sh
-
-# Install Kernel and Akmods
-/ctx/build_files/base/03-install-kernel-akmods.sh
-
-# Install Additional Packages
-/ctx/build_files/base/04-packages.sh
-
-# Wallpapers/Apperance
-/ctx/build_files/base/05-branding.sh
-
-# Install Overrides and Fetch Install
-/ctx/build_files/base/06-override-install.sh
-
-# Beta
-# /ctx/build_files/base/10-beta.sh
-
-## late stage changes
-
-# Systemd and Remove Items
-/ctx/build_files/base/17-cleanup.sh
-
-# Run workarounds for lf (Likely not needed)
-/ctx/build_files/base/18-workarounds.sh
-
-# Regenerate initramfs
-/ctx/build_files/base/19-initramfs.sh
-
-if [ "${IMAGE_FLAVOR}" == "ad" ] ; then
+if [[ "${IMAGE_FLAVOR}" == "ad" ]]; then
   /ctx/build_files/shared/build-ad.sh
 fi
 
-# Validate all repos are disabled before committing
-/ctx/build_files/shared/validate-repos.sh
+mkdir -p /tmp/scripts/helpers
+install -Dm0755 /ctx/build_files/shared/utils/ghcurl /tmp/scripts/helpers/ghcurl
 
-# Clean Up
-/ctx/build_files/shared/clean-stage.sh
-
-# Simple Tests
-/ctx/build_files/base/20-tests.sh
+echo "::endgroup::"

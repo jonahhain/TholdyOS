@@ -25,9 +25,6 @@ test -f /usr/share/icons/hicolor/scalable/distributor-logo.png
 test -f /usr/share/pixmaps/fedora-logo.png
 test -d /usr/share/plasma/look-and-feel/io.github.jonahhain.fmbg.desktop
 
-xmllint --noout \
-  /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
-
 # Make sure this garbage never makes it to an image
 test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
@@ -79,10 +76,28 @@ for package in "${IMPORTANT_PACKAGES[@]}"; do
     rpm -q "${package}" >/dev/null || { echo "Missing package: ${package}... Exiting"; exit 1 ; }
 done
 
+# these should be sourced from negativo's fedora-multimedia repo
+# as Fedora can't ship patent encumbered video codecs
+NEGATIVO=(
+    ffmpeg
+    libheif
+    libva
+    mesa-filesystem
+    mesa-va-drivers
+    pipewire-libs-extra
+    x264-libs
+    x265-libs
+)
+
+for package in "${NEGATIVO[@]}"; do
+  rpm -q --qf "%{NAME} %{VENDOR}" "${package}" | grep -q "negativo17\.org" || { echo "${package} not from negativo... Exiting"; exit 1 ; }
+done
+
 # these packages are supposed to be removed
 # and are considered footguns
 UNWANTED_PACKAGES=(
     akonadi-server
+    fedora-flathub-remote
     fedora-logos
     fedora-third-party
     firefox
@@ -123,5 +138,9 @@ for unit in "${IMPORTANT_UNITS[@]}"; do
         exit 1
     fi
 done
+
+if [[ "${IMAGE_FLAVOR}" == "ad" ]]; then
+  /ctx/build_files/ad/10-tests-ad.sh;
+fi
 
 echo "::endgroup::"

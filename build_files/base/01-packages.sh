@@ -4,6 +4,41 @@ echo "::group:: ===$(basename "$0")==="
 
 set -ouex pipefail
 
+# use negativo17 for 3rd party packages with higher priority than default
+if ! grep -q fedora-multimedia <(dnf5 repolist); then
+    # Enable or Install Repofile
+    dnf5 config-manager setopt fedora-multimedia.enabled=1 ||
+        dnf5 config-manager addrepo --from-repofile="https://negativo17.org/repos/fedora-multimedia.repo"
+fi
+# Set higher priority
+dnf5 config-manager setopt fedora-multimedia.priority=90
+
+# Add Flathub to the image for eventual application
+mkdir -p /etc/flatpak/remotes.d/
+curl --retry 3 -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# may break SDDM/KWin when upgraded
+dnf5 versionlock add "qt6-*"
+
+# use override to replace mesa and others with less crippled versions
+OVERRIDES=(
+    "intel-gmmlib"
+    "intel-mediasdk"
+    "intel-vpl-gpu-rt"
+    "libheif"
+    "libva"
+    "libva-intel-media-driver"
+    "mesa-dri-drivers"
+    "mesa-filesystem"
+    "mesa-libEGL"
+    "mesa-libGL"
+    "mesa-libgbm"
+    "mesa-va-drivers"
+    "mesa-vulkan-drivers"
+)
+
+dnf5 distro-sync --skip-unavailable -y --repo='fedora-multimedia' "${OVERRIDES[@]}"
+dnf5 versionlock add "${OVERRIDES[@]}"
 # All DNF-related operations should be done here whenever possible
 #shellcheck source=build_files/shared/copr-helpers.sh
 source /ctx/build_files/shared/copr-helpers.sh
@@ -22,27 +57,52 @@ dnf5 versionlock add plasma-desktop
 
 FEDORA_PACKAGES=(
     adcli
+    alsa-firmware
+    apr
+    apr-util
     blender
     borgbackup
     davfs2
+    distrobox
     evtest
+    flatpak-spawn
     foo2zjs
-    freeipa-client
     git-credential-libsecret
     glow
+    google-noto-sans-balinese-fonts
+    google-noto-sans-cjk-fonts
+    google-noto-sans-javanese-fonts
+    google-noto-sans-sundanese-fonts
+    grub2-tools-extra
     gum
+    gvfs
+    gvfs-fuse
+    htop
+    icoutils
     ifuse
     igt-gpu-tools
     java-latest-openjdk-devel
     just
+    kate
     krb5-workstation
-    libimobiledevice
+    ksshaskpass
+    ksystemlog
+    libavcodec
+    libcamera-gstreamer
+    libcamera-tools
+    libfdk-aac
+    libimobiledevice-utils
+    libratbag-ratbagd
     libsss_autofs
     libxcrypt-compat
     libreoffice
     lm_sensors
     musescore
     oddjob-mkhomedir
+    openrgb-udev-rules
+    pam-u2f
+    pam_yubico
+    pamu2fcfg
     plasma-wallpapers-dynamic
     powerstat
     powertop
@@ -53,13 +113,17 @@ FEDORA_PACKAGES=(
     samba-winbind-clients
     samba-winbind-modules
     setools-console
+    solaar-udev
+    squashfs-tools
     sssd-ad
-    sssd-ipa
     sssd-krb5
+    symlinks
+    tcpdump
+    tesseract-devel
+    traceroute
     uld
+    vim
     virtualbox-guest-additions
-    wireguard-tools
-    wl-clipboard
     zsh
 )
 
@@ -75,9 +139,19 @@ case "$FEDORA_MAJOR_VERSION" in
         ;;
 esac
 
+NEGATIVO_PACKAGES=(
+    ffmpeg
+    ffmpeg-libs
+    intel-vaapi-driver
+    libfdk-aac
+    libva-utils
+    pipewire-libs-extra
+    uld
+  )
+
 # Install all Fedora packages (bulk - safe from COPR injection)
-echo "Installing ${#FEDORA_PACKAGES[@]} packages from Fedora repos..."
-dnf5 -y install "${FEDORA_PACKAGES[@]}"
+echo "Installing ${#FEDORA_PACKAGES[@]} packages from Fedora repos and ${#NEGATIVO_PACKAGES[@]} from Negativo..."
+dnf5 -y install "${FEDORA_PACKAGES[@]}" "${NEGATIVO_PACKAGES[@]}"
 
 # Install COPR packages using isolated enablement (secure)
 echo "Installing COPR packages with isolated repo enablement..."
@@ -104,7 +178,7 @@ esac
 EXCLUDED_PACKAGES=(
     akonadi-server
     akonadi-server-mysql
-    cosign
+    default-fonts-cjk-sans
     fedora-bookmarks
     fedora-chromium-config
     fedora-chromium-config-kde
@@ -112,6 +186,8 @@ EXCLUDED_PACKAGES=(
     fcitx5-configtool
     fcitx5-gtk
     fcitx5-qt
+    fedora-third-party
+    ffmpegthumbnailer
     filelight
     kcm-fcitx5
     kdebugsettings
@@ -120,6 +196,7 @@ EXCLUDED_PACKAGES=(
     firefox
     firefox-langpacks
     firewall-config
+    google-noto-sans-cjk-vf-fonts
     kcharselect
     khelpcenter
     kjournaldbrowser
@@ -131,6 +208,7 @@ EXCLUDED_PACKAGES=(
     plasma-browser-integration
     plasma-discover
     plasma-discover-kns
+    plasma-discover-rpm-ostree
     plasma-welcome
     plasma-welcome-fedora
     podman-docker
@@ -156,8 +234,6 @@ if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     fi
 fi
 
-rpm --erase --nodeps fedora-logos
-
 # we can't remove plasma-lookandfeel-fedora package because it is a dependency of plasma-desktop
 rpm --erase --nodeps plasma-lookandfeel-fedora
 # rpm erase doesn't remove actual files
@@ -181,8 +257,9 @@ dnf5 -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flat
 #    dnf5 upgrade --refresh --advisory=FEDORA-2024-dd2e9fb225
 #fi
 
-# Explicitly install KDE Plasma related packages with the same version as in base image
-dnf5 -y install \
-    plasma-firewall-$(rpm -q --qf "%{VERSION}" plasma-desktop)
+# Install AD specific packages
+if [[ "${IMAGE_FLAVOR}" == "ad" ]]; then
+  /ctx/build_files/ad/00-ad.sh
+fi
 
 echo "::endgroup::"
