@@ -123,8 +123,8 @@ build $image="tholdyos" $tag="stable" $flavor="main" rechunk="0" ghcr="0" pipeli
         kernel_release="${kernel_pin}"
     fi
 
-    # Verify Containers with Cosign
-    {{ just }} verify-container "akmods:${akmods_flavor}-${fedora_version}-${kernel_release}"
+    # Verify AKMODS with Cosign
+    {{ just }} verify-container cosign-aurora.pub "ghcr.io/ublue-os/akmods:${akmods_flavor}-${fedora_version}-${kernel_release}"
 
     # Get Version
     if [[ "${tag}" =~ stable ]]; then
