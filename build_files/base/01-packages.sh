@@ -160,7 +160,9 @@ echo "Installing COPR packages with isolated repo enablement..."
 copr_install_isolated "ublue-os/packages" "uupd"
 
 # PyCharm
-copr_install_isolated "medzik/jetbrains" "pycharm-professional"
+if [[ ! "${IMAGE_NAME}" =~ smartboard ]]; then
+    copr_install_isolated "medzik/jetbrains" "pycharm-professional"
+fi
 
 # Version-specific COPR packages
 # Example:
