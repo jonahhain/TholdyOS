@@ -86,13 +86,6 @@ mkdir -p /etc/tholdyos
 base64 -d /run/secrets/DOMAIN_JOIN_KEYTAB > /etc/tholdyos/domain-join.keytab
 chmod 600 /etc/tholdyos/domain-join.keytab
 
-# NOTE: With isolated COPR installation, most repos are never enabled globally.
-# We only need to clean up repos that were enabled during the build process.
-sed -i 's@enabled=1@enabled=0@g' /etc/yum.repos.d/fedora-cisco-openh264.repo
-
-# NOTE: we won't use dnf5 copr plugin for ublue-os/akmods until our upstream provides the COPR standard naming
-sed -i 's@enabled=1@enabled=0@g' /etc/yum.repos.d/_copr_ublue-os-akmods.repo
-
 # Disable RPM Fusion repos
 for i in /etc/yum.repos.d/rpmfusion-*.repo; do
     if [[ -f "$i" ]]; then
