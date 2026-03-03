@@ -9,8 +9,6 @@ IMAGE_REF="${IMAGE_REF##*://}"
 sbkey='https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
 
 # Configure Live Environment
-## Remove packages from liveCD to save space
-dnf remove -y ublue-motd || true
 
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
@@ -20,8 +18,15 @@ systemctl disable rpm-ostreed-automatic.timer
 systemctl disable uupd.timer
 systemctl disable tholdyos-boot.service
 systemctl disable tholdyos-shutdown.service
-systemctl disable ublue-guest-user.service
+systemctl disable ublue-system-setup.service
+systemctl disable flatpak-preinstall.service
 systemctl --global disable podman-auto-update.timer
+
+# HACK for https://bugzilla.redhat.com/show_bug.cgi?id=2433186
+rpm --erase --nodeps --justdb generic-logos
+dnf download fedora-logos
+rpm -i --justdb fedora-logos*.rpm
+rm -f fedora-logos*.rpm
 
 # Configure Anaconda
 
@@ -32,9 +37,10 @@ SPECS=(
     "libblockdev-dm"
     "anaconda-live"
     "anaconda-webui"
-    "firefox"
 )
 dnf install -y "${SPECS[@]}"
+
+rpm --erase --nodeps --justdb fedora-logos
 
 # Anaconda Profile Detection
 
@@ -66,7 +72,7 @@ default_partitioning =
     /var  (btrfs)
 
 [User Interface]
-custom_stylesheet = /usr/share/anaconda/pixmaps/fedora.css
+webui_web_engine = slitherer
 hidden_spokes =
     NetworkSpoke
     PasswordSpoke
@@ -74,9 +80,6 @@ hidden_webui_pages =
     root-password
     network
 EOF
-
-# Add installer to panel
-sed -i '/<entry name="launchers" type="StringList">/,/<\/entry>/ s/<default>[^<]*<\/default>/<default>preferred:\/\/browser,applications:org.kde.konsole.desktop,preferred:\/\/filemanager,applications:liveinst.desktop<\/default>/' /usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml
 
 # add intaller to kickoff
 sed -i '2s/$/;liveinst.desktop/' /usr/share/kde-settings/kde-profile/default/xdg/kicker-extra-favoritesrc
@@ -87,15 +90,12 @@ echo "TholdyOS release $VERSION_ID ($VERSION_CODENAME)" >/etc/system-release
 
 sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/{,s}bin/liveinst || true
 
-desktop-file-edit --set-key=Icon --set-value=/usr/share/pixmaps/scope_installer.png /usr/share/applications/liveinst.desktop
-
-# Scope Fetcher, used as the icon in plasma-welcome and as the app icon itself for the installer
-curl --retry 3 -Lo /usr/share/pixmaps/scope_installer.png https://raw.githubusercontent.com/ublue-os/aurora/refs/heads/main/iso_files/scope_installer.png
-
 # Interactive Kickstart
 tee -a /usr/share/anaconda/interactive-defaults.ks <<EOF
 ostreecontainer --url=$IMAGE_REF:$IMAGE_TAG --transport=containers-storage --no-signature-verification
 %include /usr/share/anaconda/post-scripts/install-configure-upgrade.ks
+%include /usr/share/anaconda/post-scripts/disable-fedora-flatpak.ks
+%include /usr/share/anaconda/post-scripts/install-flatpaks.ks
 %include /usr/share/anaconda/post-scripts/secureboot-enroll-key.ks
 EOF
 
@@ -116,6 +116,26 @@ if [ -n "\$CLEANUP_OSTREE_BOOTED" ]; then
 fi
 %end
 EOF
+
+# Disable Fedora Flatpak
+tee /usr/share/anaconda/post-scripts/disable-fedora-flatpak.ks <<'EOF'
+%post --erroronfail
+systemctl disable flatpak-add-fedora-repos.service
+%end
+EOF
+
+# Install Flatpaks
+tee /usr/share/anaconda/post-scripts/install-flatpaks.ks <<'EOF'
+%post --erroronfail --nochroot
+deployment="$(ostree rev-parse --repo=/mnt/sysimage/ostree/repo ostree/0/1/0)"
+target="/mnt/sysimage/ostree/deploy/default/deploy/$deployment.0/var/lib/"
+mkdir -p "$target"
+rsync -aAXUHKP /var/lib/flatpak "$target"
+%end
+EOF
+
+# cleanup our leftovers
+rm -rf /flatpak-list
 
 # Fetch the Secureboot Public Key
 curl --retry 15 -Lo /etc/sb_pubkey.der "$sbkey"

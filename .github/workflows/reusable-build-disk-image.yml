@@ -64,6 +64,11 @@ jobs:
           echo "image_ref=$image_ref" >> "${GITHUB_OUTPUT}"
           echo "artifact_format=${image_name}-${{ matrix.image_version }}-${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
 
+      - name: Pull Image
+        run: |
+          set -eoux pipefail
+          sudo podman pull "${{ steps.image_ref.outputs.image_ref }}:stable"
+
       - name: Select BIB config
         id: config
         run: |
