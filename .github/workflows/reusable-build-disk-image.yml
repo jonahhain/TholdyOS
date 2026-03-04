@@ -93,8 +93,8 @@ jobs:
             -v ./output:/output \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             quay.io/centos-bootc/bootc-image-builder:latest \
-            --type raw \
-            --rootfs ext4 \
+            --type qcow2 \
+            --rootfs btrfs \
             ${{ steps.image_ref.outputs.image_ref }}:${{ matrix.image_version }}
 
       - name: Rename and checksum
@@ -105,15 +105,15 @@ jobs:
           set -eoux pipefail
           OUTPUT_DIRECTORY="$(realpath output)"
 
-          # Find the raw disk image
-          raw_file=$(find "${OUTPUT_DIRECTORY}" -name "disk.raw" -type f | head -1)
-          if [[ -z "${raw_file}" ]]; then
-            echo "Error: disk.raw not found in output directory"
+          # Find the qcow2 disk image
+          qcow2_file=$(find "${OUTPUT_DIRECTORY}" -name "disk.qcow2" -type f | head -1)
+          if [[ -z "${qcow2_file}" ]]; then
+            echo "Error: disk.qcow2 not found in output directory"
             exit 1
           fi
 
-          sudo mv "${raw_file}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img"
-          sha256sum "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.img.sha256"
+          sudo mv "${qcow2_file}" "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.qcow2"
+          sha256sum "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.qcow2" | tee "${OUTPUT_DIRECTORY}/${OUTPUT_NAME}.qcow2-CHECKSUM"
 
           echo "output_directory=$OUTPUT_DIRECTORY" >> "${GITHUB_OUTPUT}"
 

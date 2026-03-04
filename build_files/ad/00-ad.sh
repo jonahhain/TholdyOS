@@ -18,7 +18,6 @@ source /ctx/build_files/shared/copr-helpers.sh
 FEDORA_PACKAGES=(
     adcli
     cifs-utils
-    cloud-utils-growpart
     cyrus-sasl-gssapi
     krb5-workstation
     oddjob
@@ -74,7 +73,6 @@ chmod 440 /etc/sudoers.d/50-tholdyos-ad
 
 # Enable AD-specific services
 systemctl enable tholdyos-locale-setup.service
-systemctl enable tholdyos-resizefs.service
 systemctl enable tholdyos-domain-setup.service
 systemctl enable tholdyos-boot.service
 systemctl enable tholdyos-shutdown.service

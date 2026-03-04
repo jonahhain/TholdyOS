@@ -7,7 +7,6 @@ set -eoux pipefail
 IMPORTANT_PACKAGES_AD=(
     adcli
     cifs-utils
-    cloud-utils-growpart
     cyrus-sasl-gssapi
     krb5-workstation
     oddjob
@@ -32,7 +31,6 @@ for package in "${IMPORTANT_PACKAGES_AD[@]}"; do
 
 IMPORTANT_UNITS=(
     "tholdyos-locale-setup.service"
-    "tholdyos-resizefs.service"
     "tholdyos-domain-setup.service"
     "tholdyos-boot.service"
     "tholdyos-shutdown.service"
