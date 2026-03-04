@@ -13,7 +13,7 @@ for (let i = 0; i < allPanels.length; ++i) {
             widget.currentConfigGroup = ["General"];
 
             widget.writeConfig("launchers", [
-                "applications:org.kde.Konsole.desktop",
+                "applications:org.kde.konsole.desktop",
                 "preferred://filemanager",
                 "preferred://browser"
             ]);
