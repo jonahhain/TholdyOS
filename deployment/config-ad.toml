@@ -1,7 +1,6 @@
 # bootc-image-builder configuration for tholdyos-ad
 
-[[customizations.disk.partitions]]
-fs_type = "btrfs"
+[[customizations.filesystem]]
 mountpoint = "/"
 minsize = "4 GiB"
 

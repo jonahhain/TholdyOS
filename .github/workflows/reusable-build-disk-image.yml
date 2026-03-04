@@ -6,7 +6,8 @@ on:
   push:
     paths:
       - ".github/workflows/reusable-build-disk-image.yml"
-      - "deployment/**"
+      - "deployment/config-ad.toml"
+      - "deployment/config-ad-smartboard.toml"
   workflow_run:
     workflows: ["Stable Images"]
     types:
