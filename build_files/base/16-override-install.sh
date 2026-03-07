@@ -64,6 +64,7 @@ firewall-offline-cmd --service=samba --service=samba-client
 setsebool -P samba_enable_home_dirs=1
 setsebool -P samba_export_all_ro=1
 setsebool -P samba_export_all_rw=1
+setsebool -P use_samba_home_dirs=1
 sed -i '/^\[homes\]/,/^\[/{/^\[homes\]/d;/^\[/!d}' /etc/samba/smb.conf
 
 echo "::endgroup::"

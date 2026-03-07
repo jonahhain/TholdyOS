@@ -25,16 +25,14 @@ sssd_set() {
 while ! realm discover "$DOMAIN"; do
     sleep 10
     echo "Retrying domain discovery..."
+    realm leave "$DOMAIN" 2>/dev/null || true
 done
 
-# Enable authentication with sssd
-authselect select sssd with-mkhomedir --force
+# Enable authentication with sssd (now uses vendor profile with hooks included)
+authselect select vendor/tholdyos with-mkhomedir --force
 
-# Re-add PAM hooks (authselect overwrites postlogin)
-cat >> /etc/pam.d/postlogin <<'EOF'
-session optional pam_exec.so type=open_session /usr/bin/tholdyos-hooks login
-session optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logout
-EOF
+# Clean up any existing credentials
+kdestroy || true
 
 # Join domain
 kinit -k -t "${CONFIG_DIR}/domain-join.keytab" "domain-join@${REALM}"
@@ -45,20 +43,14 @@ HOSTNAME_SHORT=$(hostname -s | tr '[:lower:]' '[:upper:]')
 kinit -k "${HOSTNAME_SHORT}\$"
 
 SYSVOL_MNT=$(mktemp -d)
-if mount.cifs "//${DC_HOSTNAME}/sysvol" "$SYSVOL_MNT" \
-    -o "sec=krb5,vers=3.0,nodev,nosuid" 2>/dev/null; then
+mount.cifs "//${DC_HOSTNAME}/sysvol" "$SYSVOL_MNT" \
+    -o "sec=krb5,vers=3.0,nodev,nosuid"; then
 
-    CA_SRC="${SYSVOL_MNT}/${DOMAIN}/tls/cacert.pem"
-    if [[ -f "$CA_SRC" ]]; then
-        mkdir -p "$TLS_DIR"
-        cp "$CA_SRC" "$CA_LOCAL"
-    else
-        echo "CA certificate not found on sysvol"
-    fi
-    umount "$SYSVOL_MNT"
-else
-    echo "Could not mount sysvol"
-fi
+CA_SRC="${SYSVOL_MNT}/${DOMAIN}/tls/cacert.pem"
+mkdir -p "$TLS_DIR"
+cp "$CA_SRC" "$CA_LOCAL"
+umount "$SYSVOL_MNT"
+
 rmdir "$SYSVOL_MNT" 2>/dev/null || true
 
 # Adjust SSSD configuration
@@ -69,6 +61,7 @@ sssd_set "ad_gpo_access_control" "permissive"
 sssd_set "ad_gpo_ignore_unreadable" "True"
 sssd_set "ad_maximum_machine_account_password_age" "0"
 sssd_set "case_sensitive" "False"
+sssd_set "krb5_ccname_template" "FILE:/tmp/krb5cc_%U"
 
 systemctl restart sssd
 
