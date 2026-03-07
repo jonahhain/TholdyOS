@@ -4,6 +4,9 @@
 mountpoint = "/"
 minsize = "4 GiB"
 
+[customizations.kernel]
+append = "rhgb quiet vconsole.keymap=de"
+
 # Local admin user
 [[customizations.user]]
 name = "local-admin"
