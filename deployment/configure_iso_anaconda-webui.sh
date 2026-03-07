@@ -37,7 +37,7 @@ SPECS=(
     "libblockdev-dm"
     "anaconda-live"
     "anaconda-webui"
-    "firefox"
+    "slitherer"
 )
 dnf install -y "${SPECS[@]}"
 
