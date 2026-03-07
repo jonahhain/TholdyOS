@@ -60,6 +60,7 @@ FEDORA_PACKAGES=(
     alsa-firmware
     apr
     apr-util
+    audacity
     blender
     borgbackup
     davfs2
@@ -77,6 +78,8 @@ FEDORA_PACKAGES=(
     gum
     gvfs
     gvfs-fuse
+    gwenview
+    haruna
     htop
     icoutils
     ifuse
@@ -84,6 +87,7 @@ FEDORA_PACKAGES=(
     java-latest-openjdk-devel
     just
     kate
+    kcalc
     krb5-workstation
     ksshaskpass
     ksystemlog
@@ -99,6 +103,7 @@ FEDORA_PACKAGES=(
     lm_sensors
     musescore
     oddjob-mkhomedir
+    okular
     openrgb-udev-rules
     pam-u2f
     pam_yubico
@@ -113,6 +118,7 @@ FEDORA_PACKAGES=(
     samba-winbind-clients
     samba-winbind-modules
     setools-console
+    skanpage
     solaar-udev
     squashfs-tools
     sssd-ad
@@ -120,6 +126,7 @@ FEDORA_PACKAGES=(
     symlinks
     tcpdump
     tesseract-devel
+    thonny
     traceroute
     uld
     vim
