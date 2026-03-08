@@ -29,7 +29,7 @@ while ! realm discover "$DOMAIN"; do
 done
 
 # Enable authentication with sssd (now uses vendor profile with hooks included)
-authselect select vendor/tholdyos with-mkhomedir --force
+authselect select tholdyos with-mkhomedir --force
 
 # Clean up any existing credentials
 kdestroy || true
@@ -44,7 +44,7 @@ kinit -k "${HOSTNAME_SHORT}\$"
 
 SYSVOL_MNT=$(mktemp -d)
 mount.cifs "//${DC_HOSTNAME}/sysvol" "$SYSVOL_MNT" \
-    -o "sec=krb5,vers=3.0,nodev,nosuid"; then
+    -o "sec=krb5,vers=3.0,nodev,nosuid"
 
 CA_SRC="${SYSVOL_MNT}/${DOMAIN}/tls/cacert.pem"
 mkdir -p "$TLS_DIR"
