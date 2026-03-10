@@ -28,8 +28,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [amd64]
-        image_version: ["stable"]
         include:
           - platform: amd64
             image: tholdyos
