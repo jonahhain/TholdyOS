@@ -22,9 +22,6 @@ systemctl --global enable podman-auto-update.timer
 # Nuke possible Fedora flatpak repos
 systemctl enable flatpak-nuke-fedora.service
 
-# run flatpak preinstall once at startup
-systemctl enable flatpak-preinstall.service
-
 # Updater
 systemctl enable uupd.timer
 

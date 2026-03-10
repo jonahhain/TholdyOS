@@ -28,9 +28,6 @@ test -d /usr/share/plasma/look-and-feel/io.github.jonahhain.fmbg.desktop
 # Make sure this garbage never makes it to an image
 test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
-# Basic smoke test to check if the flatpak version is from our copr
-flatpak preinstall --help
-
 desktop-file-validate \
   /usr/share/applications/boot-to-windows.desktop \
 
