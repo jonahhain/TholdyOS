@@ -264,6 +264,12 @@ dnf5 -y swap \
 #    dnf5 upgrade --refresh --advisory=FEDORA-2024-dd2e9fb225
 #fi
 
+# https://github.com/coreos/rpm-ostree/issues/5567
+dnf -y install rpm-ostree-2025.12-1.fc$(rpm -E %fedora)
+
+dnf -y install \
+    plasma-firewall-$(rpm -q --qf "%{VERSION}" plasma-desktop)
+
 # Install AD specific packages
 if [[ "${IMAGE_FLAVOR}" == "ad" ]]; then
   /ctx/build_files/ad/00-ad.sh
