@@ -246,12 +246,6 @@ rpm --erase --nodeps plasma-lookandfeel-fedora
 # rpm erase doesn't remove actual files
 rm -rf /usr/share/plasma/look-and-feel/org.fedoraproject.fedora.desktop/
 
-# https://github.com/ublue-os/bazzite/issues/1400
-# TODO: test if we still need this when upgrading firmware with fwupd
-dnf5 -y swap \
-  --repo=copr:copr.fedorainfracloud.org:ublue-os:staging \
-  fwupd fwupd
-
 ## Pins and Overrides
 ## Use this section to pin packages in order to avoid regressions
 # Remember to leave a note with rationale/link to issue for each pin!
