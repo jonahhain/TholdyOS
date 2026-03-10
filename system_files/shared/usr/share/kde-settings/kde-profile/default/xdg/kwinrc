@@ -1,6 +1,6 @@
 [Wayland]
 EnablePrimarySelection=false
-InputMethod[$e]=/usr/share/applications/com.github.maliit.keyboard.desktop
+InputMethod[$e]=/usr/share/applications/org.kde.plasma.keyboard.desktop
 VirtualKeyboardEnabled=true
 
 [Plugins]

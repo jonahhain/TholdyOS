@@ -208,6 +208,7 @@ EXCLUDED_PACKAGES=(
     kjournaldbrowser
     krfb
     krfb-libs
+    maliit-keyboard
     mariadb
     mariadb-common
     mariadb-errmsg
