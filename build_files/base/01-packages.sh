@@ -104,10 +104,7 @@ FEDORA_PACKAGES=(
     musescore
     oddjob-mkhomedir
     okular
-    openrgb-udev-rules
-    pam-u2f
-    pam_yubico
-    pamu2fcfg
+    plasma-keyboard
     plasma-wallpapers-dynamic
     powerstat
     powertop
