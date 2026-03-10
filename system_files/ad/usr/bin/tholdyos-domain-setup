@@ -29,7 +29,7 @@ while ! realm discover "$DOMAIN"; do
 done
 
 # Enable authentication with sssd (now uses vendor profile with hooks included)
-authselect select tholdyos with-mkhomedir --force
+authselect select sssd with-mkhomedir --force
 
 # Clean up any existing credentials
 kdestroy || true
@@ -64,6 +64,12 @@ sssd_set "case_sensitive" "False"
 sssd_set "krb5_ccname_template" "FILE:/tmp/krb5cc_%U"
 
 systemctl restart sssd
+
+# Add PAM hooks for login/logout
+cat >> /etc/pam.d/postlogin <<'EOF'
+session     optional pam_exec.so type=open_session /usr/bin/tholdyos-hooks login
+session     optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logout
+EOF
 
 # Verify domain join
 getent group "domain users"

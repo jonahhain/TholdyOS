@@ -71,9 +71,8 @@ fi
 # Set permissions for custom sudoers file
 chmod 440 /etc/sudoers.d/50-tholdyos-ad
 
-# Create authselect vendor profile based on sssd
-cp -a /usr/share/authselect/default/sssd /usr/share/authselect/vendor/tholdyos
-cat >> /usr/share/authselect/vendor/tholdyos/postlogin <<'EOF'
+# Add hooks to PAM postlogin
+cat >> /etc/pam.d/postlogin <<'EOF'
 session     optional pam_exec.so type=open_session /usr/bin/tholdyos-hooks login
 session     optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logout
 EOF
