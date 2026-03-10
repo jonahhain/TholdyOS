@@ -6,7 +6,7 @@ on:
       - main
     paths-ignore:
       - "**.md"
-      - "deployment/**"
+      - "iso_files/**"
       - "flatpaks/**"
       - ".github/workflows/*iso*"
       - ".github/workflows/*disk-image*"

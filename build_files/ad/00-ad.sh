@@ -79,7 +79,6 @@ session     optional pam_exec.so type=close_session /usr/bin/tholdyos-hooks logo
 EOF
 
 # Enable AD-specific services
-systemctl enable tholdyos-locale-setup.service
 systemctl enable tholdyos-domain-setup.service
 systemctl enable tholdyos-boot.service
 systemctl enable tholdyos-shutdown.service

@@ -5,6 +5,7 @@ set -eoux pipefail
 IMAGE_INFO="$(cat /usr/share/ublue-os/image-info.json)"
 IMAGE_TAG="$(jq -c -r '."image-tag"' <<<"$IMAGE_INFO")"
 IMAGE_REF="$(jq -c -r '."image-ref"' <<<"$IMAGE_INFO")"
+IMAGE_NAME="$(jq -c -r '."image-name"' <<<"$IMAGE_INFO")"
 IMAGE_REF="${IMAGE_REF##*://}"
 sbkey='https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
 
@@ -19,7 +20,6 @@ systemctl disable uupd.timer
 systemctl disable tholdyos-boot.service
 systemctl disable tholdyos-shutdown.service
 systemctl disable ublue-system-setup.service
-systemctl disable flatpak-preinstall.service
 systemctl --global disable podman-auto-update.timer
 
 # HACK for https://bugzilla.redhat.com/show_bug.cgi?id=2433186

@@ -1,6 +1,6 @@
 [Unit]
 Description=Join domain on first boot
-After=network-online.target tholdyos-locale-setup.service
+After=network-online.target
 Wants=network-online.target
 ConditionPathExists=!/etc/tholdyos/domain-setup-done
 

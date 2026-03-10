@@ -30,7 +30,6 @@ for package in "${IMPORTANT_PACKAGES_AD[@]}"; do
     done
 
 IMPORTANT_UNITS=(
-    "tholdyos-locale-setup.service"
     "tholdyos-domain-setup.service"
     "tholdyos-boot.service"
     "tholdyos-shutdown.service"

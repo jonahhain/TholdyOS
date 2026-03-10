@@ -5,7 +5,7 @@ ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION}:-43"
 
 FROM scratch AS ctx
 COPY /build_files /build_files
-COPY /deployment /deployment
+COPY /iso_files /iso_files
 
 COPY /flatpaks /flatpaks
 COPY /logos /logos

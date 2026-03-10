@@ -6,7 +6,8 @@ on:
   push:
     paths:
       - ".github/workflows/reusable-build-iso-anaconda-webui.yml"
-      - "deployment/configure_iso_anaconda-webui.sh"
+      - "iso_files/configure_iso_anaconda-webui.sh"
+      - "iso_files/configure_iso_anaconda-webui-ad.sh"
   workflow_run:
     workflows: ["Stable Images"]
     types:
@@ -14,7 +15,6 @@ on:
 
 env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
-  IMAGE_NAME: "tholdyos"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -29,12 +29,26 @@ jobs:
       fail-fast: false
       matrix:
         platform: [amd64]
-        flavor: ["main"]
         image_version: ["stable"]
         include:
           - platform: amd64
-            flavor: "main"
+            image: tholdyos
+            flavor: main
             image_version: stable
+            hook: iso_files/configure_iso_anaconda-webui.sh
+            flatpaks: flatpaks/system-flatpaks.list
+          - platform: amd64
+            image: tholdyos-ad
+            flavor: main
+            image_version: stable
+            hook: iso_files/configure_iso_anaconda-webui-ad.sh
+            flatpaks: flatpaks/system-flatpaks.list
+          - platform: amd64
+            image: tholdyos-ad
+            flavor: smartboard
+            image_version: stable
+            hook: iso_files/configure_iso_anaconda-webui-ad.sh
+            flatpaks: flatpaks/system-flatpaks-smartboard.list
     permissions:
       contents: read
       packages: read
@@ -62,7 +76,7 @@ jobs:
           FLAVOR: ${{ matrix.flavor }}
         run: |
           set -eoux pipefail
-          image_name=$(just image_name "tholdyos" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
+          image_name=$(just image_name "${{ matrix.image }}" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
           image_ref="${IMAGE_REGISTRY}/${image_name}"
           KARGS="NONE"
           BUILD_DATE=$(date +%Y%m%d)
@@ -75,8 +89,8 @@ jobs:
         uses: ublue-os/titanoboa@main
         with:
           image-ref: ${{ steps.image_ref.outputs.image_ref }}:${{ matrix.image_version }}
-          flatpaks-list: ${{ github.workspace }}/flatpaks/system-flatpaks.list
-          hook-post-rootfs: ${{ github.workspace }}/deployment/configure_iso_anaconda-webui.sh
+          flatpaks-list: ${{ github.workspace }}/${{ matrix.flatpaks }}
+          hook-post-rootfs: ${{ github.workspace }}/${{ matrix.hook }}
           kargs: ${{ steps.image_ref.outputs.kargs }}
 
       - name: Rename ISO
