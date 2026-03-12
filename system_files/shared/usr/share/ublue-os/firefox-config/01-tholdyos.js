@@ -4,10 +4,6 @@
 pref("gfx.webrender.all", true);
 pref("media.hardware-video-decoding.force-enabled", true);
 
-// Disable crash report auto-submission
-lockPref("browser.tabs.crashReporting.sendReport", false);
-lockPref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
-
 // Disable welcome pages and UI tour
 pref("browser.aboutwelcome.enabled", false);
 pref("startup.homepage_welcome_url", "");
@@ -23,13 +19,3 @@ pref("browser.rights.3.shown", true);
 
 // Disable default browser check
 pref("browser.shell.checkDefaultBrowser", false);
-
-// Disable sponsored content on new tab
-lockPref("browser.newtabpage.activity-stream.showSponsored", false);
-lockPref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
-lockPref("browser.newtabpage.activity-stream.default.sites", "");
-
-// Disable extension and feature recommendations
-lockPref("extensions.getAddons.showPane", false);
-lockPref("extensions.htmlaboutaddons.recommendations.enabled", false);
-lockPref("browser.discovery.enabled", false);
