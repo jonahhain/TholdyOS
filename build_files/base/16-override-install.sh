@@ -23,7 +23,7 @@ ln -sf /usr/share/applications/libreoffice-calc.desktop /etc/skel/Desktop/libreo
 ln -sf /usr/share/applications/blender.desktop /etc/skel/Desktop/blender.desktop
 ln -sf /usr/share/applications/org.musescore.MuseScore.desktop /etc/skel/Desktop/org.musescore.MuseScore.desktop
 ln -sf /var/lib/flatpak/exports/share/applications/cc.arduino.IDE2.desktop /etc/skel/Desktop/cc.arduino.IDE2.desktop
-ln -sf /usr/share/applications/org.audacityteam.Audacity.desktop /etc/skel/Desktop/org.audacityteam.Audacity.desktop
+ln -sf /usr/share/applications/audacity.desktop /etc/skel/Desktop/audacity.desktop
 ln -sf /var/lib/flatpak/exports/share/applications/org.bluej.BlueJ.desktop /etc/skel/Desktop/org.bluej.BlueJ.desktop
 ln -sf /usr/share/applications/org.kde.okular.desktop /etc/skel/Desktop/org.kde.okular.desktop
 
