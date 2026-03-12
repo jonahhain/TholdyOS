@@ -8,6 +8,7 @@ on:
       - ".github/workflows/reusable-build-iso-anaconda-webui.yml"
       - "iso_files/configure_iso_anaconda-webui.sh"
       - "iso_files/configure_iso_anaconda-webui-ad.sh"
+      - "iso_files/pre_initramfs_anaconda-ad.sh"
   workflow_run:
     workflows: ["Stable Images"]
     types:
@@ -40,12 +41,14 @@ jobs:
             flavor: main
             image_version: stable
             hook: iso_files/configure_iso_anaconda-webui-ad.sh
+            hook_pre_initramfs: iso_files/pre_initramfs_anaconda-ad.sh
             flatpaks: flatpaks/system-flatpaks.list
           - platform: amd64
             image: tholdyos-ad
             flavor: smartboard
             image_version: stable
             hook: iso_files/configure_iso_anaconda-webui-ad.sh
+            hook_pre_initramfs: iso_files/pre_initramfs_anaconda-ad.sh
             flatpaks: flatpaks/system-flatpaks-smartboard.list
     permissions:
       contents: read
@@ -72,11 +75,16 @@ jobs:
         id: image_ref
         env:
           FLAVOR: ${{ matrix.flavor }}
+          IMAGE: ${{ matrix.image }}
         run: |
           set -eoux pipefail
           image_name=$(just image_name "${{ matrix.image }}" "${{ matrix.image_version}}" "${{ matrix.flavor}}")
           image_ref="${IMAGE_REGISTRY}/${image_name}"
-          KARGS="NONE"
+          if [[ "$IMAGE" == "tholdyos-ad" ]]; then
+            KARGS="inst.cmdline,inst.waitfornet=60,inst.ks=file:///usr/share/anaconda/automated.ks"
+          else
+            KARGS="NONE"
+          fi
           BUILD_DATE=$(date +%Y%m%d)
           echo "image_ref=$image_ref" >> "${GITHUB_OUTPUT}"
           echo "artifact_format=${image_name}-${{ matrix.image_version }}-${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
@@ -89,6 +97,7 @@ jobs:
           image-ref: ${{ steps.image_ref.outputs.image_ref }}:${{ matrix.image_version }}
           flatpaks-list: ${{ github.workspace }}/${{ matrix.flatpaks }}
           hook-post-rootfs: ${{ github.workspace }}/${{ matrix.hook }}
+          hook-pre-initramfs: ${{ matrix.hook_pre_initramfs && format('{0}/{1}', github.workspace, matrix.hook_pre_initramfs) || '' }}
           kargs: ${{ steps.image_ref.outputs.kargs }}
 
       - name: Rename ISO

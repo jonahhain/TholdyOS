@@ -30,13 +30,20 @@ rpm -i --justdb fedora-logos*.rpm
 rm -f fedora-logos*.rpm
 
 # Install Anaconda (text mode only, no webui needed)
-SPECS=(
-    "libblockdev-btrfs"
-    "libblockdev-lvm"
-    "libblockdev-dm"
-    "anaconda-live"
+dnf install -y anaconda-tui
+
+# Remove large packages to save space
+UNUSED_PACKAGES=(
+    audacity
+    blender
+    libreoffice
+    musescore
+    java-latest-openjdk-devel
 )
-dnf install -y "${SPECS[@]}"
+readarray -t INSTALLED_UNUSED < <(rpm -qa --queryformat='%{NAME}\n' "${UNUSED_PACKAGES[@]}" 2>/dev/null || true)
+if [[ "${#INSTALLED_UNUSED[@]}" -gt 0 ]]; then
+    dnf remove -y --setopt=clean_requirements_on_remove=1 "${INSTALLED_UNUSED[@]}"
+fi
 
 rpm --erase --nodeps --justdb fedora-logos
 
@@ -74,14 +81,11 @@ EOF
 . /etc/os-release
 echo "TholdyOS release $VERSION_ID ($VERSION_CODENAME)" >/etc/system-release
 
-sed -i 's/ANACONDA_PRODUCTVERSION=.*/ANACONDA_PRODUCTVERSION=""/' /usr/{,s}bin/liveinst || true
-
 # Build the automated kickstart
 KICKSTART="/usr/share/anaconda/automated.ks"
 
 cat > "$KICKSTART" <<KSEOF
 # TholdyOS AD Automated Installation
-cmdline
 
 # Localization
 lang de_DE.UTF-8
@@ -188,26 +192,3 @@ mokutil --timeout -1 || :
 echo -e "$ENROLLMENT_PASSWORD\n$ENROLLMENT_PASSWORD" | mokutil --import "$SECUREBOOT_KEY" || :
 %end
 EOF
-
-# Auto-start installer via systemd service
-tee /etc/systemd/system/tholdyos-autoinstall.service <<'EOF'
-[Unit]
-Description=TholdyOS Automated Installation
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/sbin/liveinst --kickstart /usr/share/anaconda/automated.ks
-StandardInput=tty
-StandardOutput=tty
-StandardError=tty
-TTYPath=/dev/tty1
-TTYReset=yes
-TTYVHangup=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable tholdyos-autoinstall.service
