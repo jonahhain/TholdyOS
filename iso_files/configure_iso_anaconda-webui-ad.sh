@@ -32,19 +32,6 @@ rm -f fedora-logos*.rpm
 # Install Anaconda (text mode only, no webui needed)
 dnf install -y anaconda-tui
 
-# Remove large packages to save space
-UNUSED_PACKAGES=(
-    audacity
-    blender
-    libreoffice
-    musescore
-    java-latest-openjdk-devel
-)
-readarray -t INSTALLED_UNUSED < <(rpm -qa --queryformat='%{NAME}\n' "${UNUSED_PACKAGES[@]}" 2>/dev/null || true)
-if [[ "${#INSTALLED_UNUSED[@]}" -gt 0 ]]; then
-    dnf remove -y --setopt=clean_requirements_on_remove=1 "${INSTALLED_UNUSED[@]}"
-fi
-
 rpm --erase --nodeps --justdb fedora-logos
 
 # Anaconda Profile Detection
@@ -118,6 +105,9 @@ cat >> "$KICKSTART" <<KSEOF
 
 # Image
 ostreecontainer --url=$IMAGE_REF:$IMAGE_TAG --transport=containers-storage --no-signature-verification
+
+# Set graphical.target as default
+xconfig --startxonboot
 
 # Reboot after installation
 reboot
