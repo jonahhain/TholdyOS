@@ -36,7 +36,9 @@ kdestroy || true
 
 # Join domain
 kinit -k -t "${CONFIG_DIR}/domain-join.keytab" "domain-join@${REALM}"
-realm join -v "$DOMAIN" -U "domain-join"
+if ! realm list | grep -qP "^\s*${DOMAIN}\s*$"; then
+    realm join -v "$DOMAIN" -U "domain-join"
+fi
 
 # Retrieve CA certificate from sysvol
 HOSTNAME_SHORT=$(hostname -s | tr '[:lower:]' '[:upper:]')
